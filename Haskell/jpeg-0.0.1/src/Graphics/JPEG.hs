@@ -6,10 +6,10 @@ import Data.Word
 import Data.Int
 import Data.List(transpose)
 import Data.Bits(testBit)
-import Control.Monad(sequence, replicateM, liftM, liftM2)
+import Control.Monad(replicateM, liftM, liftM2)
 import Debug.Trace
 import System.IO
-import Control.Monad.State(State(..), evalState, get, put)
+import Control.Monad.State(State, state, evalState, runState, get, put)
 
 ----------------------------------------------
 -- Auxiliary functions:
@@ -132,6 +132,8 @@ peekitem   ::  State [a] a
 peekitem = liftM head get
 
 
+-- 'entropy' will transfer all its state to value,
+-- skipping all restart markers.
 entropy :: State String String
 entropy = do ys <- get
              case ys of
@@ -193,10 +195,10 @@ sf_uncur f = do (a,b) <- get
 
 -- definition using State constructor
 sf_curry :: State (a,b) c -> b -> State a (b,c)
-sf_curry (State h) = f
-          where f b = State g
+sf_curry h = f
+          where f b = state g
                  where g a = ((b2,c),a2) 
-                        where (c,(a2,b2)) = h (a,b)
+                        where (c,(a2,b2)) = runState h (a,b)
 
 {-
 -- unfinished alternative definition using State interface
