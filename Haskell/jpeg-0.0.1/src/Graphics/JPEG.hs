@@ -109,6 +109,7 @@ byte2nibs x = x `divMod` 16
 data Tree a  =  Nil
              |  Tip a
              |  Bin (Tree a) (Tree a)
+             deriving (Show)
 
 instance Functor Tree where
     fmap _ Nil       =  Nil
@@ -217,8 +218,8 @@ huffmanTree  =  evalState (build 0) . concat . zipWith f [1..16]
 
 treeLookup              :: Tree a -> State Bits a
 treeLookup (Tip x)       = return x
-treeLookup (Bin lef rit) = do b <- item
-                              treeLookup (if b then rit else lef)
+treeLookup (Bin left right) = do b <- item
+                                 treeLookup (if b then right else left)
 treeLookup Nil           = error "treeLookup needs nonempty tree"
 
 
