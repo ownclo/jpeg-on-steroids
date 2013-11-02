@@ -9,7 +9,7 @@ import Data.Bits(testBit)
 import Control.Monad(replicateM, liftM, liftM2)
 import Debug.Trace
 import System.IO
-import Control.Monad.State(State, state, evalState, runState, get, put)
+import Control.Monad.State(State, evalState, runState, get, put)
 
 ----------------------------------------------
 -- Auxiliary functions:
@@ -55,7 +55,7 @@ yCbCr2RGB [y,cb,cr]
         g = fromIntegral (sane (128 + yi - cbi `div`3 - 4*cri `div` 5))
         b :: Word8
         b = fromIntegral (sane (128 + yi + cbi+cbi))
-    in  PixelRGB r g b       
+    in  PixelRGB r g b
 yCbCr2RGB _ = error "yCbCr2RGB needs 3 elements"
 
 ----------------------------------------------
@@ -134,6 +134,7 @@ peekitem = liftM head get
 
 -- 'entropy' will transfer all its state to value,
 -- skipping all restart markers.
+-- XXX: what if the state ENDS with '\xFF'?
 entropy :: State String String
 entropy = do ys <- get
              case ys of
@@ -170,22 +171,15 @@ nibbles  = liftM byte2nibs byte
 matrix      :: Monad m => Dim -> m a -> m (Mat a)
 matrix (y,x) = replicateM y . replicateM x
 
+-- XXX: many will fall into infinite loop if state
+-- stops modifying in a non-null value.
 many   :: Monad (State [a]) => State [a] b -> State [a] [b]
 many f  = do b  <- empty
              if b
               then return []
               else liftM2 (:) f (many f)
 
-                
-{-  
--- definition using State constructor
-sf_uncur f = State h
-  where h (a,b) = (c, (a2,b2))
-            where State g      = f b
-                  ((b2,c),a2)  = g a
--}
 
--- alternative definition using State interface
 sf_uncur  :: (b -> State a (b,c)) -> State (a,b) c
 sf_uncur f = do (a,b) <- get
                 let g = f b
@@ -193,21 +187,11 @@ sf_uncur f = do (a,b) <- get
                 put (a2,b2)
                 return c
 
--- definition using State constructor
 sf_curry :: State (a,b) c -> b -> State a (b,c)
-sf_curry h = f
-          where f b = state g
-                 where g a = ((b2,c),a2) 
-                        where (c,(a2,b2)) = runState h (a,b)
-
-{-
--- unfinished alternative definition using State interface
-sf_curry       :: State (a,b) c -> b -> State a (b,c)
-sf_curry sh = f
-          where f b = do let (c,(a2,b2)) = runState sh (a,b)
-                         (b2,c) <- get
-                         ????
--}
+sf_curry h b = do a <- get
+                  let (c,(a2,b2)) = runState h (a,b)
+                  put a2
+                  return (b2,c)
 
 
 ----------------------------------------------
@@ -224,7 +208,7 @@ build n = do b     <- empty
                               y <- build (n+1)
                               return $ Bin x y
              return $ if b then Nil else t
-             
+
 
 huffmanTree ::  Monad (State [(a,Int)]) => [[a]] -> Tree a
 huffmanTree  =  evalState (build 0) . concat . zipWith f [1..16]
@@ -256,10 +240,10 @@ extend v t | t==0      =  0
                    where  vt = 2^(t-1)
 
 acdecode :: Tree (Int,Int) -> Int -> State Bits [Int]
-acdecode t k 
+acdecode t k
   = do (r,s) <- treeLookup t
        let  k2 =  k + r + 1
-       if   r==0&&s==0 
+       if   r==0&&s==0
         then return (replicate (64-k) 0)
         else do x <-  receive s
                 xs <- if k2>=64 then return [] else acdecode t k2
@@ -292,7 +276,7 @@ cosinuses  = map f [1,3..15]
 type QuaTab = [Int]
 
 dequant :: QuaTab -> [Int] -> Mat Int8
-dequant  =  matmap truncate `o` idct2 `o` zigzag `o` map fromIntegral `o` zipWith (*) 
+dequant  =  matmap truncate `o` idct2 `o` zigzag `o` map fromIntegral `o` zipWith (*)
 
 upsamp      :: Dim -> Mat a -> Mat a
 upsamp (1,1) = id
@@ -318,8 +302,8 @@ zigzag2 cs =  (transpose . map concat . transpose . fst . foldr f e) [1..15]
             f n (rss,xs) = (bs:rss, ys)
               where (as,ys) = splitAt (min n (16-n)) xs
                     rev = if even n then id else reverse
-                    bs =    replicate (max (n-8) 0) [] 
-                         ++ map (:[]) (rev as) 
+                    bs =    replicate (max (n-8) 0) []
+                         ++ map (:[]) (rev as)
                          ++ replicate (max (8-n) 0) []
 
 ----------------------------------------------
@@ -335,8 +319,8 @@ type MCUSpec  =  [(Dim, DataSpec)]
 dataunit ::  DataSpec -> Int -> State Bits (Int,DataUnit)
 dataunit (u,q,dc,ac) x = do dx <- dcdecode dc
                             xs <- acdecode ac 1
-                            let y=x+dx 
-                            return (y, upsamp u (dequant q (y:xs))) 
+                            let y=x+dx
+                            return (y, upsamp u (dequant q (y:xs)))
 
 units    :: Dim -> DataSpec -> State (Bits,Int) DataUnit
 units dim = fmap matconcat . matrix dim . sf_uncur . dataunit
@@ -361,10 +345,10 @@ picture dim  = fmap matconcat . matrix dim . mcu4
 
 -- if you prefer one-liners over auxiliary definitions:
 {-
-picture2 dim =     fmap matconcat 
-                .  matrix dim 
+picture2 dim =     fmap matconcat
+                .  matrix dim
                 .  fmap (matmap yCbCr2RGB . matzip)
-                .  sf_uncur 
+                .  sf_uncur
                 .  fmap unzip
                `o` sequence
                `o` zipWith ($)
@@ -390,7 +374,7 @@ frameCompo :: State String (Int, (Int,Int), Int)
 frameCompo = do c <- byte
                 dim <- nibbles
                 tq <- byte
-                return $ (c,dim,tq) 
+                return $ (c,dim,tq)
 
 scanCompo :: State String (Int,Int,Int)
 scanCompo  = do cs <- byte
@@ -404,7 +388,7 @@ qtabCompo  = do (p,ident) <- nibbles
 
 
 sofSeg :: State String ( (Int,Int), [(Int, (Int,Int), Int)] )
-sofSeg = do _ <- word  
+sofSeg = do _ <- word
             _ <- byte
             y <- word
             x <- word
@@ -432,7 +416,7 @@ sosSeg = do _ <- word
             _   <- nibbles
             ent <- entropy
             return $ (scs, string2bits ent)
-            
+
 segment :: (SOF->a, DHT->a, DQT->a, SOS->a, XXX->a) -> State String a
 segment (sof,dht,dqt,sos,xxx) =
   do _ <- item
@@ -481,22 +465,22 @@ evalDHT _          _                  = error "evalDHT: unexpected case"
 
 evalDQT :: DQT -> State2 -> Qua
 evalDQT xs (_,_,qua,_) =  foldr f qua xs
-                   where  f (i,q) = subst i q 
+                   where  f (i,q) = subst i q
 
 evalSOS :: SOS -> State2 -> Picture
-evalSOS (cs,xs) (((y,x),sof),(h0,h1),_,_) 
+evalSOS (cs,xs) (((y,x),sof),(h0,h1),_,_)
                                  =  map (take x) (take y (evalState thePicture (xs,[0,0,0])))
             where thePicture     =  picture repCount mcuSpec
                   mcuSpec        =  map f cs
                   f (ident,dc,ac)=  (d, (upsCount d, qt, h0 dc, h1 ac))
                              where  (d,qt) = sof ident
-                  repCount       =  ( ceilDiv y (8*maxy), ceilDiv x (8*maxx) ) 
+                  repCount       =  ( ceilDiv y (8*maxy), ceilDiv x (8*maxx) )
                   upsCount (h,w) =  ( maxy `div` h, maxx `div` w )
                   maxy           =  maximum ( map (fst.fst) mcuSpec )
                   maxx           =  maximum ( map (snd.fst) mcuSpec )
 
 jpegDecode :: String -> Picture
-jpegDecode  = pi4 . foldl (flip ($)) errRes . evalState segments 
+jpegDecode  = pi4 . foldl (flip ($)) errRes . evalState segments
         where pi4 (_,_,_,x) = x
 
 
@@ -505,8 +489,8 @@ jpegDecode  = pi4 . foldl (flip ($)) errRes . evalState segments
 ----------------------------------------------
 
 ppmEncode :: Mat PixelRGB -> String
-ppmEncode xss  
-   =  "P6\n# Creator: Haskell JPEG decoder\n" 
+ppmEncode xss
+   =  "P6\n# Creator: Haskell JPEG decoder\n"
       ++ w ++ " " ++ h ++ "\n255\n"
       ++ (concat . map rgbPixel2ppmChars . concat) xss
    where  w = show (length (head xss))
@@ -522,7 +506,7 @@ rgbPixel2ppmChars (PixelRGB r g b)
 ----------------------------------------------
 
 bmpEncode :: Mat PixelRGB -> String
-bmpEncode xss 
+bmpEncode xss
   = bmphead xss
     ++ concat (map bmpline (reverse xss))
 
@@ -537,7 +521,7 @@ bmphead xss = (concat . map wor )
               len = 54 + (a+p)*h
 
 bmpline :: [PixelRGB] -> String
-bmpline xs 
+bmpline xs
    = let  as = concatMap rgbPixel2bmpChars xs
           n  = bmpPad (length as)
      in   if n==0
@@ -571,14 +555,14 @@ writeBinFile f s = do h <- openBinaryFile f WriteMode
                       hClose h
 
 
-jpgFile2bmpFile :: String -> String -> IO ()                                                  
+jpgFile2bmpFile :: String -> String -> IO ()
 jpgFile2bmpFile src dst
-  =  do input <- readBinFile src 
+  =  do input <- readBinFile src
         let output = (bmpEncode . jpegDecode) input
         writeBinFile dst output
 
-jpgFile2ppmFile :: String -> String -> IO ()                                                  
+jpgFile2ppmFile :: String -> String -> IO ()
 jpgFile2ppmFile src dst
-  =  do input <- readBinFile src 
+  =  do input <- readBinFile src
         let output = (ppmEncode . jpegDecode) input
         writeBinFile dst output
