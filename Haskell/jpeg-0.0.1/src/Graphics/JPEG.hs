@@ -16,12 +16,12 @@ import Control.Monad.State(State, evalState, runState, get, put)
 ----------------------------------------------
 
 infixr 9 `o`
-o :: (c->d) -> (a->b->c) -> (a->b->d)
+o :: (c->d) -> (a->b->c) -> a->b->d
 (g `o` f) x y = g (f x y)
 
 type Table a  =  Int -> a
 
-subst :: Eq a => a -> b -> (a->b) -> (a->b)
+subst :: Eq a => a -> b -> (a->b) -> a->b
 subst i e t j  | i==j      =  e
                | otherwise =  t j
 
@@ -180,18 +180,18 @@ many f  = do b  <- empty
               else liftM2 (:) f (many f)
 
 
-sf_uncur  :: (b -> State a (b,c)) -> State (a,b) c
-sf_uncur f = do (a,b) <- get
-                let g = f b
-                let ((b2,c),a2) = runState g a
-                put (a2,b2)
-                return c
+sfUncur  :: (b -> State a (b,c)) -> State (a,b) c
+sfUncur f = do (a,b) <- get
+               let g = f b
+               let ((b2,c),a2) = runState g a
+               put (a2,b2)
+               return c
 
-sf_curry :: State (a,b) c -> b -> State a (b,c)
-sf_curry h b = do a <- get
-                  let (c,(a2,b2)) = runState h (a,b)
-                  put a2
-                  return (b2,c)
+sfCurry :: State (a,b) c -> b -> State a (b,c)
+sfCurry h b = do a <- get
+                 let (c,(a2,b2)) = runState h (a,b)
+                 put a2
+                 return (b2,c)
 
 
 ----------------------------------------------
@@ -203,7 +203,7 @@ build n = do b     <- empty
              (_,s) <- peekitem
              t     <- if   n==s
                       then do (v,_) <- item
-                              return $  Tip v
+                              return $ Tip v
                       else do x <- build (n+1)
                               y <- build (n+1)
                               return $ Bin x y
@@ -247,7 +247,7 @@ acdecode t k
         then return (replicate (64-k) 0)
         else do x <-  receive s
                 xs <- if k2>=64 then return [] else acdecode t k2
-                return $  replicate r 0 ++ (extend x s:xs)
+                return $ replicate r 0 ++ (extend x s:xs)
 
 
 ----------------------------------------------
@@ -323,10 +323,10 @@ dataunit (u,q,dc,ac) x = do dx <- dcdecode dc
                             return (y, upsamp u (dequant q (y:xs)))
 
 units    :: Dim -> DataSpec -> State (Bits,Int) DataUnit
-units dim = fmap matconcat . matrix dim . sf_uncur . dataunit
+units dim = fmap matconcat . matrix dim . sfUncur . dataunit
 
 units2  :: (Dim,DataSpec) -> Int -> State Bits (Int,DataUnit)
-units2   =  sf_curry . uncurry units
+units2   =  sfCurry . uncurry units
 
 mcu     :: MCUSpec -> [ Int -> State Bits (Int,DataUnit) ]
 mcu      = map units2
@@ -338,7 +338,7 @@ mcu3    :: MCUSpec -> [Int] -> State Bits ([Int],[DataUnit])
 mcu3     = fmap unzip `o` sequence `o` mcu2
 
 mcu4    :: MCUSpec -> State (Bits,[Int]) Picture
-mcu4     = fmap (matmap yCbCr2RGB . matzip) . sf_uncur . mcu3
+mcu4     = fmap (matmap yCbCr2RGB . matzip) . sfUncur . mcu3
 
 picture :: Dim -> MCUSpec -> State (Bits,[Int]) Picture
 picture dim  = fmap matconcat . matrix dim . mcu4
@@ -348,11 +348,11 @@ picture dim  = fmap matconcat . matrix dim . mcu4
 picture2 dim =     fmap matconcat
                 .  matrix dim
                 .  fmap (matmap yCbCr2RGB . matzip)
-                .  sf_uncur
+                .  sfUncur
                 .  fmap unzip
                `o` sequence
                `o` zipWith ($)
-                .  map (sf_curry . uncurry units)
+                .  map (sfCurry . uncurry units)
 -}
 
 
@@ -374,17 +374,17 @@ frameCompo :: State String (Int, (Int,Int), Int)
 frameCompo = do c <- byte
                 dim <- nibbles
                 tq <- byte
-                return $ (c,dim,tq)
+                return (c,dim,tq)
 
 scanCompo :: State String (Int,Int,Int)
 scanCompo  = do cs <- byte
                 (td,ta) <- nibbles
-                return $ (cs,td,ta)
+                return (cs,td,ta)
 
 qtabCompo :: State String (Int, [Int])
 qtabCompo  = do (p,ident) <- nibbles
                 qt <- replicateM 64 (if p==0 then byte else word)
-                return $ (ident,qt)
+                return (ident,qt)
 
 
 sofSeg :: State String ( (Int,Int), [(Int, (Int,Int), Int)] )
@@ -394,14 +394,14 @@ sofSeg = do _ <- word
             x <- word
             n <- byte
             fcs <- replicateM n frameCompo
-            return $ ((y,x), fcs)
+            return ((y,x), fcs)
 
 dhtSeg :: State String (Int, Int, Tree Int)
 dhtSeg =  do _ <- word
              (tc,th) <- nibbles
              ns <- replicateM 16 byte
-             v <- sequence (map (flip replicateM byte) ns)
-             return $  (tc, th, huffmanTree v)
+             v <- mapM (`replicateM` byte) ns
+             return (tc, th, huffmanTree v)
 
 dqtSeg :: State String [(Int, [Int])]
 dqtSeg = do len <- word
@@ -415,24 +415,23 @@ sosSeg = do _ <- word
             _ <- byte
             _   <- nibbles
             ent <- entropy
-            return $ (scs, string2bits ent)
+            return (scs, string2bits ent)
 
 segment :: (SOF->a, DHT->a, DQT->a, SOS->a, XXX->a) -> State String a
 segment (sof,dht,dqt,sos,xxx) =
   do _ <- item
      c <- item
      -- () <- trace ("segment: " ++ show (ord c)) (return ())
-     s <- case c of
-           '\xC0' -> fmap sof sofSeg
-           '\xC4' -> fmap dht dhtSeg
-           '\xDB' -> fmap dqt dqtSeg
-           '\xDA' -> fmap sos sosSeg
-           '\xD8' -> return $ xxx (c,[])
-           '\xD9' -> return $ xxx (c,[])
-           _      -> do n <- word
-                        s <- replicateM (n-2) item
-                        return $ xxx (c,s)
-     return s
+     case c of
+       '\xC0' -> fmap sof sofSeg
+       '\xC4' -> fmap dht dhtSeg
+       '\xDB' -> fmap dqt dqtSeg
+       '\xDA' -> fmap sos sosSeg
+       '\xD8' -> return $ xxx (c,[])
+       '\xD9' -> return $ xxx (c,[])
+       _      -> do n <- word
+                    s <- replicateM (n-2) item
+                    return $ xxx (c,s)
 
 ----------------------------------------------
 -- JPEG Decoder
@@ -449,7 +448,7 @@ segments = many (segment (sof,dht,dqt,sos,xxx))
            dht x s@(a,_,c,d) = (a, evalDHT x s, c, d)
            dqt x s@(a,b,_,d) = (a, b, evalDQT x s, d)
            sos x s@(a,b,c,_) = (a, b, c, evalSOS x s)
-           xxx x s           = trace ("extra data: " ++ show x) s
+           xxx x             = trace ("extra data: " ++ show x)
 
 errRes  :: State2
 errRes   = (error "SOF", error "DHT", error "DQT", error "SOS")
@@ -492,7 +491,7 @@ ppmEncode :: Mat PixelRGB -> String
 ppmEncode xss
    =  "P6\n# Creator: Haskell JPEG decoder\n"
       ++ w ++ " " ++ h ++ "\n255\n"
-      ++ (concat . map rgbPixel2ppmChars . concat) xss
+      ++ (concatMap rgbPixel2ppmChars . concat) xss
    where  w = show (length (head xss))
           h = show (length xss)
 
@@ -508,10 +507,10 @@ rgbPixel2ppmChars (PixelRGB r g b)
 bmpEncode :: Mat PixelRGB -> String
 bmpEncode xss
   = bmphead xss
-    ++ concat (map bmpline (reverse xss))
+    ++ concatMap bmpline (reverse xss)
 
 bmphead :: [[a]] -> String
-bmphead xss = (concat . map wor )
+bmphead xss = concatMap wor
               ([ 19778, len, len `div` 65536, 0, 0 ,54, 0, 40
                , 0    , w  , 0, h, 0 , 1, 24, 0 ] ++ replicate 11 0)
         where w = length (head xss)
