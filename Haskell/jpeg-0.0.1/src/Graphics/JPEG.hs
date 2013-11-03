@@ -90,11 +90,6 @@ type Bits = [Bool]
 byte2bits  :: Int -> Bits
 byte2bits x = map (testBit x) [7,6..0]
 
-{-
-byte2bits x = zipWith (>=) (map (rem x) powers) (tail powers)
-      where powers = [256,128,64,32,16,8,4,2,1]
--}
-
 string2bits :: String -> Bits
 string2bits  = concatMap (byte2bits . ord)
 
@@ -159,8 +154,6 @@ word  =  do a<-byte
             b<-byte
             return $ a*256+b
 
--- word = liftM2 ((+) .(256*)) byte byte
-
 nibbles :: State String (Int,Int)
 nibbles  = liftM byte2nibs byte
 
@@ -172,6 +165,7 @@ nibbles  = liftM byte2nibs byte
 matrix      :: Monad m => Dim -> m a -> m (Mat a)
 matrix (y,x) = replicateM y . replicateM x
 
+-- Many repeats computation until the state is empty.
 -- XXX: many will fall into infinite loop if state
 -- stops modifying in a non-null value.
 many   :: Monad (State [a]) => State [a] b -> State [a] [b]
@@ -294,18 +288,6 @@ zigzag xs = matmap (xs!!) [[ 0, 1, 5, 6,14,15,27,28]
                           ,[35,36,48,49,57,58,62,63]
                           ]
 
-
--- alternative definition, more intensional but not necessarily clearer
-
-zigzag2 :: [a] -> Mat a
-zigzag2 cs =  (transpose . map concat . transpose . fst . foldr f e) [1..15]
-      where e = ([],reverse cs)
-            f n (rss,xs) = (bs:rss, ys)
-              where (as,ys) = splitAt (min n (16-n)) xs
-                    rev = if even n then id else reverse
-                    bs =    replicate (max (n-8) 0) []
-                         ++ map (:[]) (rev as)
-                         ++ replicate (max (8-n) 0) []
 
 ----------------------------------------------
 -- Data decoding
