@@ -129,7 +129,8 @@ peekitem = liftM head get
 
 
 -- 'entropy' will transfer all its state to value,
--- skipping all restart markers.
+-- skipping all restart markers. the name stands for
+-- 'entropy coding'.
 -- XXX: what if the state ENDS with '\xFF'?
 entropy :: State String String
 entropy = do ys <- get
@@ -193,6 +194,9 @@ sfCurry h b = do a <- get
 -- Huffman Trees
 ----------------------------------------------
 
+-- WARN! If the tree is malformed, the code will blow up
+-- with runtime exception:
+-- evalState (build 0) $ [(0,1), (1,3), (2,3)]
 build :: Monad (State [(a,Int)]) => Int -> State [(a,Int)] (Tree a)
 build n = do b     <- empty
              (_,s) <- peekitem
@@ -353,24 +357,24 @@ type SOS = ([ScanCompo],Bits)
 type DQT = [QtabCompo]
 type XXX = (Char,String)
 
-frameCompo :: State String (Int, (Int,Int), Int)
+frameCompo :: State String FrameCompo
 frameCompo = do c <- byte
                 dim <- nibbles
                 tq <- byte
                 return (c,dim,tq)
 
-scanCompo :: State String (Int,Int,Int)
+scanCompo :: State String ScanCompo
 scanCompo  = do cs <- byte
                 (td,ta) <- nibbles
                 return (cs,td,ta)
 
-qtabCompo :: State String (Int, [Int])
+qtabCompo :: State String QtabCompo
 qtabCompo  = do (p,ident) <- nibbles
                 qt <- replicateM 64 (if p==0 then byte else word)
                 return (ident,qt)
 
 
-sofSeg :: State String ( (Int,Int), [(Int, (Int,Int), Int)] )
+sofSeg :: State String SOF
 sofSeg = do _ <- word
             _ <- byte
             y <- word
@@ -379,18 +383,18 @@ sofSeg = do _ <- word
             fcs <- replicateM n frameCompo
             return ((y,x), fcs)
 
-dhtSeg :: State String (Int, Int, Tree Int)
+dhtSeg :: State String DHT
 dhtSeg =  do _ <- word
              (tc,th) <- nibbles
              ns <- replicateM 16 byte
              v <- mapM (`replicateM` byte) ns
              return (tc, th, huffmanTree v)
 
-dqtSeg :: State String [(Int, [Int])]
+dqtSeg :: State String DQT
 dqtSeg = do len <- word
             replicateM ((len-2)`rem`64) qtabCompo
 
-sosSeg :: State String ( [(Int,Int,Int)], Bits)
+sosSeg :: State String SOS
 sosSeg = do _ <- word
             n <- byte
             scs <- replicateM n scanCompo
