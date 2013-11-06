@@ -1,0 +1,389 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+CASE	cbits/stb_image.c	2485;"	d	file:
+CASE	cbits/stb_image.c	2498;"	d	file:
+CASE	cbits/stb_image.c	2501;"	d	file:
+CASE	cbits/stb_image.c	2514;"	d	file:
+CASE	cbits/stb_image.c	853;"	d	file:
+CASE	cbits/stb_image.c	871;"	d	file:
+COMBO	cbits/stb_image.c	852;"	d	file:
+DNL	cbits/stb_image.c	1594;"	d	file:
+EOI	cbits/stb_image.c	1596;"	d	file:
+FAST_BITS	cbits/stb_image.c	951;"	d	file:
+F_avg	cbits/stb_image.c	/^   F_none=0, F_sub=1, F_up=2, F_avg=3, F_paeth=4,$/;"	e	enum:__anon13	file:
+F_avg_first	cbits/stb_image.c	/^   F_avg_first, F_paeth_first$/;"	e	enum:__anon13	file:
+F_none	cbits/stb_image.c	/^   F_none=0, F_sub=1, F_up=2, F_avg=3, F_paeth=4,$/;"	e	enum:__anon13	file:
+F_paeth	cbits/stb_image.c	/^   F_none=0, F_sub=1, F_up=2, F_avg=3, F_paeth=4,$/;"	e	enum:__anon13	file:
+F_paeth_first	cbits/stb_image.c	/^   F_avg_first, F_paeth_first$/;"	e	enum:__anon13	file:
+F_sub	cbits/stb_image.c	/^   F_none=0, F_sub=1, F_up=2, F_avg=3, F_paeth=4,$/;"	e	enum:__anon13	file:
+F_up	cbits/stb_image.c	/^   F_none=0, F_sub=1, F_up=2, F_avg=3, F_paeth=4,$/;"	e	enum:__anon13	file:
+HDR_BUFLEN	cbits/stb_image.c	4215;"	d	file:
+IDCT_1D	cbits/stb_image.c	1208;"	d	file:
+MARKER_none	cbits/stb_image.c	1322;"	d	file:
+MIN_VERSION_base	dist/build/autogen/cabal_macros.h	5;"	d
+MIN_VERSION_bitmap	dist/build/autogen/cabal_macros.h	12;"	d
+MIN_VERSION_bytestring	dist/build/autogen/cabal_macros.h	19;"	d
+PNG_TYPE	cbits/stb_image.c	2395;"	d	file:
+RESTART	cbits/stb_image.c	1339;"	d	file:
+SCAN_header	cbits/stb_image.c	/^   SCAN_header$/;"	e	enum:__anon4	file:
+SCAN_load	cbits/stb_image.c	/^   SCAN_load=0,$/;"	e	enum:__anon4	file:
+SCAN_type	cbits/stb_image.c	/^   SCAN_type,$/;"	e	enum:__anon4	file:
+SOF	cbits/stb_image.c	1597;"	d	file:
+SOI	cbits/stb_image.c	1595;"	d	file:
+SOS	cbits/stb_image.c	1598;"	d	file:
+STBI_HAS_LROTL	cbits/stb_image.c	378;"	d	file:
+STBI_INCLUDE_STB_IMAGE_H	cbits/stb_image.c	65;"	d	file:
+STBI_NOTUSED	cbits/stb_image.c	375;"	d	file:
+STBI_NO_WRITE	cbits/stb_image.c	372;"	d	file:
+STBI_VERSION	cbits/stb_image.c	196;"	d	file:
+STBI_default	cbits/stb_image.c	/^   STBI_default = 0, \/\/ only used for req_comp$/;"	e	enum:__anon1	file:
+STBI_grey	cbits/stb_image.c	/^   STBI_grey       = 1,$/;"	e	enum:__anon1	file:
+STBI_grey_alpha	cbits/stb_image.c	/^   STBI_grey_alpha = 2,$/;"	e	enum:__anon1	file:
+STBI_rgb	cbits/stb_image.c	/^   STBI_rgb        = 3,$/;"	e	enum:__anon1	file:
+STBI_rgb_alpha	cbits/stb_image.c	/^   STBI_rgb_alpha  = 4$/;"	e	enum:__anon1	file:
+VERSION_base	dist/build/autogen/cabal_macros.h	4;"	d
+VERSION_bitmap	dist/build/autogen/cabal_macros.h	11;"	d
+VERSION_bytestring	dist/build/autogen/cabal_macros.h	18;"	d
+YCbCr_to_RGB_row	cbits/stb_image.c	/^static void YCbCr_to_RGB_row(uint8 *out, const uint8 *y, const uint8 *pcb, const uint8 *pcr, int count, int step)$/;"	f	file:
+ZFAST_BITS	cbits/stb_image.c	1952;"	d	file:
+ZFAST_MASK	cbits/stb_image.c	1953;"	d	file:
+_CRT_SECURE_NO_WARNINGS	cbits/stb_image.c	190;"	d	file:
+at_eof	cbits/stb_image.c	/^stbi_inline static int at_eof(stbi *s)$/;"	f	file:
+bgindex	cbits/stb_image.c	/^   int flags, bgindex, ratio, transparent, eflags;$/;"	m	struct:stbi_gif_struct	file:
+bit_reverse	cbits/stb_image.c	/^stbi_inline static int bit_reverse(int v, int bits)$/;"	f	file:
+bitcount	cbits/stb_image.c	/^static int bitcount(unsigned int a)$/;"	f	file:
+bitreverse16	cbits/stb_image.c	/^stbi_inline static int bitreverse16(int n)$/;"	f	file:
+bmask	cbits/stb_image.c	/^static uint32 bmask[17]={0,1,3,7,15,31,63,127,255,511,1023,2047,4095,8191,16383,32767,65535};$/;"	v	file:
+bmp_load	cbits/stb_image.c	/^static stbi_uc *bmp_load(stbi *s, int *x, int *y, int *comp, int req_comp)$/;"	f	file:
+bmp_test	cbits/stb_image.c	/^static int bmp_test(stbi *s)$/;"	f	file:
+buffer_start	cbits/stb_image.c	/^   uint8 buffer_start[128];$/;"	m	struct:__anon3	file:
+buflen	cbits/stb_image.c	/^   int buflen;$/;"	m	struct:__anon3	file:
+build_huffman	cbits/stb_image.c	/^static int build_huffman(huffman *h, int *count)$/;"	f	file:
+channel	cbits/stb_image.c	/^   stbi_uc size,type,channel;$/;"	m	struct:__anon14	file:
+check_png_header	cbits/stb_image.c	/^static int check_png_header(stbi *s)$/;"	f	file:
+chunk	cbits/stb_image.c	/^} chunk;$/;"	t	typeref:struct:__anon11	file:
+clamp	cbits/stb_image.c	/^stbi_inline static uint8 clamp(int x)$/;"	f	file:
+cleanup_jpeg	cbits/stb_image.c	/^static void cleanup_jpeg(jpeg *j)$/;"	f	file:
+code	cbits/stb_image.c	/^   uint16 code[256];$/;"	m	struct:__anon5	file:
+code_bits	cbits/stb_image.c	/^   int            code_bits;   \/\/ number of valid bits$/;"	m	struct:__anon6	file:
+code_buffer	cbits/stb_image.c	/^   uint32         code_buffer; \/\/ jpeg entropy-coded buffer$/;"	m	struct:__anon6	file:
+code_buffer	cbits/stb_image.c	/^   uint32 code_buffer;$/;"	m	struct:__anon10	file:
+codes	cbits/stb_image.c	/^   stbi_gif_lzw codes[4096];$/;"	m	struct:stbi_gif_struct	file:
+color_table	cbits/stb_image.c	/^   uint8 *color_table;$/;"	m	struct:stbi_gif_struct	file:
+compute_huffman_codes	cbits/stb_image.c	/^static int compute_huffman_codes(zbuf *a)$/;"	f	file:
+compute_transparency	cbits/stb_image.c	/^static int compute_transparency(png *z, uint8 tc[3], int out_n)$/;"	f	file:
+compute_y	cbits/stb_image.c	/^static uint8 compute_y(int r, int g, int b)$/;"	f	file:
+convert_format	cbits/stb_image.c	/^static unsigned char *convert_format(unsigned char *data, int img_n, int req_comp, uint x, uint y)$/;"	f	file:
+create_png_image	cbits/stb_image.c	/^static int create_png_image(png *a, uint8 *raw, uint32 raw_len, int out_n, int interlaced)$/;"	f	file:
+create_png_image_raw	cbits/stb_image.c	/^static int create_png_image_raw(png *a, uint8 *raw, uint32 raw_len, int out_n, uint32 x, uint32 y)$/;"	f	file:
+cur_x	cbits/stb_image.c	/^   int cur_x, cur_y;$/;"	m	struct:stbi_gif_struct	file:
+cur_y	cbits/stb_image.c	/^   int cur_x, cur_y;$/;"	m	struct:stbi_gif_struct	file:
+data	cbits/stb_image.c	/^      uint8 *data;$/;"	m	struct:__anon6::__anon7	file:
+dc_pred	cbits/stb_image.c	/^      int dc_pred;$/;"	m	struct:__anon6::__anon7	file:
+decode	cbits/stb_image.c	/^stbi_inline static int decode(jpeg *j, huffman *h)$/;"	f	file:
+decode_block	cbits/stb_image.c	/^static int decode_block(jpeg *j, short data[64], huffman *hdc, huffman *hac, int b)$/;"	f	file:
+decode_jpeg_header	cbits/stb_image.c	/^static int decode_jpeg_header(jpeg *z, int scan)$/;"	f	file:
+decode_jpeg_image	cbits/stb_image.c	/^static int decode_jpeg_image(jpeg *j)$/;"	f	file:
+default_distance	cbits/stb_image.c	/^static uint8 default_length[288], default_distance[32];$/;"	v	file:
+default_length	cbits/stb_image.c	/^static uint8 default_length[288], default_distance[32];$/;"	v	file:
+delta	cbits/stb_image.c	/^   int    delta[17];   \/\/ old 'firstsymbol' - old 'firstcode'$/;"	m	struct:__anon5	file:
+dequant	cbits/stb_image.c	/^   uint8 dequant[4][64];$/;"	m	struct:__anon6	file:
+dequant2	cbits/stb_image.c	/^   unsigned short dequant2[4][64];$/;"	m	struct:__anon6	file:
+dezigzag	cbits/stb_image.c	/^static uint8 dezigzag[64+15] =$/;"	v	file:
+dist_base	cbits/stb_image.c	/^static int dist_base[32] = { 1,2,3,4,5,7,9,13,17,25,33,49,65,97,129,193,$/;"	v	file:
+dist_extra	cbits/stb_image.c	/^static int dist_extra[32] =$/;"	v	file:
+div16	cbits/stb_image.c	1706;"	d	file:
+div4	cbits/stb_image.c	1657;"	d	file:
+do_png	cbits/stb_image.c	/^static unsigned char *do_png(png *p, int *x, int *y, int *n, int req_comp)$/;"	f	file:
+do_zlib	cbits/stb_image.c	/^static int do_zlib(zbuf *a, char *obuf, int olen, int exp, int parse_header)$/;"	f	file:
+e	cbits/stb_image.c	/^static int e(const char *str)$/;"	f	file:
+e	cbits/stb_image.c	514;"	d	file:
+e	cbits/stb_image.c	516;"	d	file:
+e	cbits/stb_image.c	518;"	d	file:
+eflags	cbits/stb_image.c	/^   int flags, bgindex, ratio, transparent, eflags;$/;"	m	struct:stbi_gif_struct	file:
+eof	cbits/stb_image.c	/^   int      (*eof)   (void *user);                       \/\/ returns nonzero if we are at end of file\/data$/;"	m	struct:__anon2	file:
+epf	cbits/stb_image.c	521;"	d	file:
+epuc	cbits/stb_image.c	522;"	d	file:
+expand	cbits/stb_image.c	/^static int expand(zbuf *z, int n)  \/\/ need to make room for n bytes$/;"	f	file:
+expand_palette	cbits/stb_image.c	/^static int expand_palette(png *a, uint8 *palette, int len, int pal_img_n)$/;"	f	file:
+expanded	cbits/stb_image.c	/^   uint8 *idata, *expanded, *out;$/;"	m	struct:__anon12	file:
+extend_receive	cbits/stb_image.c	/^stbi_inline static int extend_receive(jpeg *j, int n)$/;"	f	file:
+f2f	cbits/stb_image.c	1204;"	d	file:
+failure_reason	cbits/stb_image.c	/^static const char *failure_reason;$/;"	v	file:
+fast	cbits/stb_image.c	/^   uint16 fast[1 << ZFAST_BITS];$/;"	m	struct:__anon9	file:
+fast	cbits/stb_image.c	/^   uint8  fast[1 << FAST_BITS];$/;"	m	struct:__anon5	file:
+fill_bits	cbits/stb_image.c	/^static void fill_bits(zbuf *z)$/;"	f	file:
+first	cbits/stb_image.c	/^   uint8 first;$/;"	m	struct:stbi_gif_lzw_struct	file:
+first_row_filter	cbits/stb_image.c	/^static uint8 first_row_filter[5] =$/;"	v	file:
+firstcode	cbits/stb_image.c	/^   uint16 firstcode[16];$/;"	m	struct:__anon9	file:
+firstsymbol	cbits/stb_image.c	/^   uint16 firstsymbol[16];$/;"	m	struct:__anon9	file:
+flags	cbits/stb_image.c	/^   int flags, bgindex, ratio, transparent, eflags;$/;"	m	struct:stbi_gif_struct	file:
+float2fixed	cbits/stb_image.c	1743;"	d	file:
+float2int	cbits/stb_image.c	896;"	d	file:
+fsh	cbits/stb_image.c	1205;"	d	file:
+get16	cbits/stb_image.c	/^static int get16(stbi *s)$/;"	f	file:
+get16le	cbits/stb_image.c	/^static int get16le(stbi *s)$/;"	f	file:
+get32	cbits/stb_image.c	/^static uint32 get32(stbi *s)$/;"	f	file:
+get32le	cbits/stb_image.c	/^static uint32 get32le(stbi *s)$/;"	f	file:
+get8	cbits/stb_image.c	/^stbi_inline static int get8(stbi *s)$/;"	f	file:
+get8u	cbits/stb_image.c	/^stbi_inline static uint8 get8u(stbi *s)$/;"	f	file:
+get_chunk_header	cbits/stb_image.c	/^static chunk get_chunk_header(stbi *s)$/;"	f	file:
+get_marker	cbits/stb_image.c	/^static uint8 get_marker(jpeg *j)$/;"	f	file:
+getn	cbits/stb_image.c	/^static int getn(stbi *s, stbi_uc *buffer, int n)$/;"	f	file:
+gif_test	cbits/stb_image.c	/^static int gif_test(stbi *s)$/;"	f	file:
+grow_buffer_unsafe	cbits/stb_image.c	/^static void grow_buffer_unsafe(jpeg *j)$/;"	f	file:
+h	cbits/stb_image.c	/^      int h,v;$/;"	m	struct:__anon6::__anon7	file:
+h	cbits/stb_image.c	/^   int w,h;$/;"	m	struct:stbi_gif_struct	file:
+h2	cbits/stb_image.c	/^      int x,y,w2,h2;$/;"	m	struct:__anon6::__anon7	file:
+h2l_gamma_i	cbits/stb_image.c	/^static float h2l_gamma_i=1.0f\/2.2f, h2l_scale_i=1.0f;$/;"	v	file:
+h2l_scale_i	cbits/stb_image.c	/^static float h2l_gamma_i=1.0f\/2.2f, h2l_scale_i=1.0f;$/;"	v	file:
+ha	cbits/stb_image.c	/^      int hd,ha;$/;"	m	struct:__anon6::__anon7	file:
+hd	cbits/stb_image.c	/^      int hd,ha;$/;"	m	struct:__anon6::__anon7	file:
+hdr_convert	cbits/stb_image.c	/^static void hdr_convert(float *output, stbi_uc *input, int req_comp)$/;"	f	file:
+hdr_gettoken	cbits/stb_image.c	/^static char *hdr_gettoken(stbi *z, char *buffer)$/;"	f	file:
+hdr_load	cbits/stb_image.c	/^static float *hdr_load(stbi *s, int *x, int *y, int *comp, int req_comp)$/;"	f	file:
+hdr_test	cbits/stb_image.c	/^static int hdr_test(stbi *s)$/;"	f	file:
+hdr_to_ldr	cbits/stb_image.c	/^static stbi_uc *hdr_to_ldr(float   *data, int x, int y, int comp)$/;"	f	file:
+high_bit	cbits/stb_image.c	/^static int high_bit(unsigned int z)$/;"	f	file:
+hs	cbits/stb_image.c	/^   int hs,vs;   \/\/ expansion factor in each axis$/;"	m	struct:__anon8	file:
+huff_ac	cbits/stb_image.c	/^   huffman huff_ac[4];$/;"	m	struct:__anon6	file:
+huff_dc	cbits/stb_image.c	/^   huffman huff_dc[4];$/;"	m	struct:__anon6	file:
+huffman	cbits/stb_image.c	/^} huffman;$/;"	t	typeref:struct:__anon5	file:
+id	cbits/stb_image.c	/^      int id;$/;"	m	struct:__anon6::__anon7	file:
+idata	cbits/stb_image.c	/^   uint8 *idata, *expanded, *out;$/;"	m	struct:__anon12	file:
+idct_block	cbits/stb_image.c	/^static void idct_block(uint8 *out, int out_stride, short data[64], stbi_dequantize_t *dequantize)$/;"	f	file:
+img_buffer	cbits/stb_image.c	/^   uint8 *img_buffer, *img_buffer_end;$/;"	m	struct:__anon3	file:
+img_buffer_end	cbits/stb_image.c	/^   uint8 *img_buffer, *img_buffer_end;$/;"	m	struct:__anon3	file:
+img_buffer_original	cbits/stb_image.c	/^   uint8 *img_buffer_original;$/;"	m	struct:__anon3	file:
+img_comp	cbits/stb_image.c	/^   } img_comp[4];$/;"	m	struct:__anon6	typeref:struct:__anon6::__anon7	file:
+img_h_max	cbits/stb_image.c	/^   int img_h_max, img_v_max;$/;"	m	struct:__anon6	file:
+img_mcu_h	cbits/stb_image.c	/^   int img_mcu_w, img_mcu_h;$/;"	m	struct:__anon6	file:
+img_mcu_w	cbits/stb_image.c	/^   int img_mcu_w, img_mcu_h;$/;"	m	struct:__anon6	file:
+img_mcu_x	cbits/stb_image.c	/^   int img_mcu_x, img_mcu_y;$/;"	m	struct:__anon6	file:
+img_mcu_y	cbits/stb_image.c	/^   int img_mcu_x, img_mcu_y;$/;"	m	struct:__anon6	file:
+img_n	cbits/stb_image.c	/^   int img_n, img_out_n;$/;"	m	struct:__anon3	file:
+img_out_n	cbits/stb_image.c	/^   int img_n, img_out_n;$/;"	m	struct:__anon3	file:
+img_v_max	cbits/stb_image.c	/^   int img_h_max, img_v_max;$/;"	m	struct:__anon6	file:
+img_x	cbits/stb_image.c	/^   uint32 img_x, img_y;$/;"	m	struct:__anon3	file:
+img_y	cbits/stb_image.c	/^   uint32 img_x, img_y;$/;"	m	struct:__anon3	file:
+init_defaults	cbits/stb_image.c	/^static void init_defaults(void)$/;"	f	file:
+int16	cbits/stb_image.c	/^typedef   signed short  int16;$/;"	t	file:
+int32	cbits/stb_image.c	/^typedef   signed int    int32;$/;"	t	file:
+io	cbits/stb_image.c	/^   stbi_io_callbacks io;$/;"	m	struct:__anon3	file:
+io_user_data	cbits/stb_image.c	/^   void *io_user_data;$/;"	m	struct:__anon3	file:
+jpeg	cbits/stb_image.c	/^} jpeg;$/;"	t	typeref:struct:__anon6	file:
+l2h_gamma	cbits/stb_image.c	/^static float l2h_gamma=2.2f, l2h_scale=1.0f;$/;"	v	file:
+l2h_scale	cbits/stb_image.c	/^static float l2h_gamma=2.2f, l2h_scale=1.0f;$/;"	v	file:
+ldr_to_hdr	cbits/stb_image.c	/^static float   *ldr_to_hdr(stbi_uc *data, int x, int y, int comp)$/;"	f	file:
+length	cbits/stb_image.c	/^   uint32 length;$/;"	m	struct:__anon11	file:
+length_base	cbits/stb_image.c	/^static int length_base[31] = {$/;"	v	file:
+length_extra	cbits/stb_image.c	/^static int length_extra[31]= $/;"	v	file:
+lflags	cbits/stb_image.c	/^   int lflags;$/;"	m	struct:stbi_gif_struct	file:
+line0	cbits/stb_image.c	/^   uint8 *line0,*line1;$/;"	m	struct:__anon8	file:
+line1	cbits/stb_image.c	/^   uint8 *line0,*line1;$/;"	m	struct:__anon8	file:
+line_size	cbits/stb_image.c	/^   int line_size;$/;"	m	struct:stbi_gif_struct	file:
+linebuf	cbits/stb_image.c	/^      uint8 *linebuf;$/;"	m	struct:__anon6::__anon7	file:
+load_jpeg_image	cbits/stb_image.c	/^static uint8 *load_jpeg_image(jpeg *z, int *out_x, int *out_y, int *comp, int req_comp)$/;"	f	file:
+lpal	cbits/stb_image.c	/^   uint8 lpal[256][4];$/;"	m	struct:stbi_gif_struct	file:
+marker	cbits/stb_image.c	/^   unsigned char  marker;      \/\/ marker seen while filling entropy buffer$/;"	m	struct:__anon6	file:
+max_x	cbits/stb_image.c	/^   int max_x, max_y;$/;"	m	struct:stbi_gif_struct	file:
+max_y	cbits/stb_image.c	/^   int max_x, max_y;$/;"	m	struct:stbi_gif_struct	file:
+maxcode	cbits/stb_image.c	/^   int maxcode[17];$/;"	m	struct:__anon9	file:
+maxcode	cbits/stb_image.c	/^   unsigned int maxcode[18];$/;"	m	struct:__anon5	file:
+nomore	cbits/stb_image.c	/^   int            nomore;      \/\/ flag if we saw a marker so must stop$/;"	m	struct:__anon6	file:
+num_bits	cbits/stb_image.c	/^   int num_bits;$/;"	m	struct:__anon10	file:
+order	cbits/stb_image.c	/^   int scan_n, order[4];$/;"	m	struct:__anon6	file:
+out	cbits/stb_image.c	/^   stbi_uc *out;                 \/\/ output buffer (always 4 components)$/;"	m	struct:stbi_gif_struct	file:
+out	cbits/stb_image.c	/^   uint8 *idata, *expanded, *out;$/;"	m	struct:__anon12	file:
+paeth	cbits/stb_image.c	/^static int paeth(int a, int b, int c)$/;"	f	file:
+pal	cbits/stb_image.c	/^   uint8  pal[256][4];$/;"	m	struct:stbi_gif_struct	file:
+parse	cbits/stb_image.c	/^   int parse, step;$/;"	m	struct:stbi_gif_struct	file:
+parse_entropy_coded_data	cbits/stb_image.c	/^static int parse_entropy_coded_data(jpeg *z)$/;"	f	file:
+parse_huffman_block	cbits/stb_image.c	/^static int parse_huffman_block(zbuf *a)$/;"	f	file:
+parse_png_file	cbits/stb_image.c	/^static int parse_png_file(png *z, int scan, int req_comp)$/;"	f	file:
+parse_uncompressed_block	cbits/stb_image.c	/^static int parse_uncompressed_block(zbuf *a)$/;"	f	file:
+parse_zlib	cbits/stb_image.c	/^static int parse_zlib(zbuf *a, int parse_header)$/;"	f	file:
+parse_zlib_header	cbits/stb_image.c	/^static int parse_zlib_header(zbuf *a)$/;"	f	file:
+pic_copyval	cbits/stb_image.c	/^static void pic_copyval(int channel,stbi_uc *dest,const stbi_uc *src)$/;"	f	file:
+pic_is4	cbits/stb_image.c	/^static int pic_is4(stbi *s,const char *str)$/;"	f	file:
+pic_load	cbits/stb_image.c	/^static stbi_uc *pic_load(stbi *s,int *px,int *py,int *comp,int req_comp)$/;"	f	file:
+pic_load2	cbits/stb_image.c	/^static stbi_uc *pic_load2(stbi *s,int width,int height,int *comp, stbi_uc *result)$/;"	f	file:
+pic_packet_t	cbits/stb_image.c	/^} pic_packet_t;$/;"	t	typeref:struct:__anon14	file:
+pic_readval	cbits/stb_image.c	/^static stbi_uc *pic_readval(stbi *s, int channel, stbi_uc *dest)$/;"	f	file:
+pic_test	cbits/stb_image.c	/^static int pic_test(stbi *s)$/;"	f	file:
+png	cbits/stb_image.c	/^} png;$/;"	t	typeref:struct:__anon12	file:
+prefix	cbits/stb_image.c	/^   int16 prefix;$/;"	m	struct:stbi_gif_lzw_struct	file:
+process_frame_header	cbits/stb_image.c	/^static int process_frame_header(jpeg *z, int scan)$/;"	f	file:
+process_marker	cbits/stb_image.c	/^static int process_marker(jpeg *z, int m)$/;"	f	file:
+process_scan_header	cbits/stb_image.c	/^static int process_scan_header(jpeg *z)$/;"	f	file:
+psd_load	cbits/stb_image.c	/^static stbi_uc *psd_load(stbi *s, int *x, int *y, int *comp, int req_comp)$/;"	f	file:
+psd_test	cbits/stb_image.c	/^static int psd_test(stbi *s)$/;"	f	file:
+ratio	cbits/stb_image.c	/^   int flags, bgindex, ratio, transparent, eflags;$/;"	m	struct:stbi_gif_struct	file:
+raw_data	cbits/stb_image.c	/^      void *raw_data;$/;"	m	struct:__anon6::__anon7	file:
+read	cbits/stb_image.c	/^   int      (*read)  (void *user,char *data,int size);   \/\/ fill 'data' with 'size' bytes.  return number of bytes actually read $/;"	m	struct:__anon2	file:
+read_from_callbacks	cbits/stb_image.c	/^   int read_from_callbacks;$/;"	m	struct:__anon3	file:
+refill_buffer	cbits/stb_image.c	/^static void refill_buffer(stbi *s)$/;"	f	file:
+resample	cbits/stb_image.c	/^   resample_row_func resample;$/;"	m	struct:__anon8	file:
+resample_row_1	cbits/stb_image.c	/^static uint8 *resample_row_1(uint8 *out, uint8 *in_near, uint8 *in_far, int w, int hs)$/;"	f	file:
+resample_row_func	cbits/stb_image.c	/^typedef uint8 *(*resample_row_func)(uint8 *out, uint8 *in0, uint8 *in1,$/;"	t	file:
+resample_row_generic	cbits/stb_image.c	/^static uint8 *resample_row_generic(uint8 *out, uint8 *in_near, uint8 *in_far, int w, int hs)$/;"	f	file:
+resample_row_h_2	cbits/stb_image.c	/^static uint8*  resample_row_h_2(uint8 *out, uint8 *in_near, uint8 *in_far, int w, int hs)$/;"	f	file:
+resample_row_hv_2	cbits/stb_image.c	/^static uint8 *resample_row_hv_2(uint8 *out, uint8 *in_near, uint8 *in_far, int w, int hs)$/;"	f	file:
+resample_row_v_2	cbits/stb_image.c	/^static uint8* resample_row_v_2(uint8 *out, uint8 *in_near, uint8 *in_far, int w, int hs)$/;"	f	file:
+reset	cbits/stb_image.c	/^static void reset(jpeg *j)$/;"	f	file:
+restart_interval	cbits/stb_image.c	/^   int restart_interval, todo;$/;"	m	struct:__anon6	file:
+s	cbits/stb_image.c	/^   stbi *s;$/;"	m	struct:__anon12	file:
+s	cbits/stb_image.c	/^   stbi *s;$/;"	m	struct:__anon6	file:
+scan_n	cbits/stb_image.c	/^   int scan_n, order[4];$/;"	m	struct:__anon6	file:
+shiftsigned	cbits/stb_image.c	/^static int shiftsigned(int v, int shift, int bits)$/;"	f	file:
+size	cbits/stb_image.c	/^   stbi_uc size,type,channel;$/;"	m	struct:__anon14	file:
+size	cbits/stb_image.c	/^   uint8  size[257];$/;"	m	struct:__anon5	file:
+size	cbits/stb_image.c	/^   uint8  size[288];$/;"	m	struct:__anon9	file:
+skip	cbits/stb_image.c	/^   void     (*skip)  (void *user,unsigned n);            \/\/ skip the next 'n' bytes$/;"	m	struct:__anon2	file:
+skip	cbits/stb_image.c	/^static void skip(stbi *s, int n)$/;"	f	file:
+start_callbacks	cbits/stb_image.c	/^static void start_callbacks(stbi *s, stbi_io_callbacks *c, void *user)$/;"	f	file:
+start_file	cbits/stb_image.c	/^static void start_file(stbi *s, FILE *f)$/;"	f	file:
+start_mem	cbits/stb_image.c	/^static void start_mem(stbi *s, uint8 const *buffer, int len)$/;"	f	file:
+start_x	cbits/stb_image.c	/^   int start_x, start_y;$/;"	m	struct:stbi_gif_struct	file:
+start_y	cbits/stb_image.c	/^   int start_x, start_y;$/;"	m	struct:stbi_gif_struct	file:
+stbi	cbits/stb_image.c	/^} stbi;$/;"	t	typeref:struct:__anon3	file:
+stbi_YCbCr_installed	cbits/stb_image.c	/^static stbi_YCbCr_to_RGB_run stbi_YCbCr_installed = YCbCr_to_RGB_row;$/;"	v	file:
+stbi_YCbCr_to_RGB_run	cbits/stb_image.c	/^typedef void (*stbi_YCbCr_to_RGB_run)(stbi_uc *output, stbi_uc const  *y, stbi_uc const *cb, stbi_uc const *cr, int count, int step);$/;"	t	file:
+stbi_bmp_info	cbits/stb_image.c	/^static int stbi_bmp_info(stbi *s, int *x, int *y, int *comp)$/;"	f	file:
+stbi_bmp_load	cbits/stb_image.c	/^static stbi_uc *stbi_bmp_load(stbi *s,int *x, int *y, int *comp, int req_comp)$/;"	f	file:
+stbi_bmp_test	cbits/stb_image.c	/^static int stbi_bmp_test(stbi *s)$/;"	f	file:
+stbi_convert_iphone_png_to_rgb	cbits/stb_image.c	/^void stbi_convert_iphone_png_to_rgb(int flag_true_if_should_convert)$/;"	f
+stbi_de_iphone	cbits/stb_image.c	/^static void stbi_de_iphone(png *z)$/;"	f	file:
+stbi_de_iphone_flag	cbits/stb_image.c	/^static int stbi_de_iphone_flag = 0;$/;"	v	file:
+stbi_dequantize_t	cbits/stb_image.c	/^typedef uint8 stbi_dequantize_t;$/;"	t	file:
+stbi_dequantize_t	cbits/stb_image.c	/^typedef unsigned short stbi_dequantize_t;$/;"	t	file:
+stbi_failure_reason	cbits/stb_image.c	/^const char *stbi_failure_reason(void)$/;"	f
+stbi_fill_gif_background	cbits/stb_image.c	/^static void stbi_fill_gif_background(stbi_gif *g)$/;"	f	file:
+stbi_gif	cbits/stb_image.c	/^} stbi_gif;$/;"	t	typeref:struct:stbi_gif_struct	file:
+stbi_gif_header	cbits/stb_image.c	/^static int stbi_gif_header(stbi *s, stbi_gif *g, int *comp, int is_info)$/;"	f	file:
+stbi_gif_info	cbits/stb_image.c	/^static int stbi_gif_info(stbi *s, int *x, int *y, int *comp)$/;"	f	file:
+stbi_gif_info_raw	cbits/stb_image.c	/^static int stbi_gif_info_raw(stbi *s, int *x, int *y, int *comp)$/;"	f	file:
+stbi_gif_load	cbits/stb_image.c	/^static stbi_uc *stbi_gif_load(stbi *s, int *x, int *y, int *comp, int req_comp)$/;"	f	file:
+stbi_gif_load_next	cbits/stb_image.c	/^static uint8 *stbi_gif_load_next(stbi *s, stbi_gif *g, int *comp, int req_comp)$/;"	f	file:
+stbi_gif_lzw	cbits/stb_image.c	/^} stbi_gif_lzw;$/;"	t	typeref:struct:stbi_gif_lzw_struct	file:
+stbi_gif_lzw_struct	cbits/stb_image.c	/^typedef struct stbi_gif_lzw_struct {$/;"	s	file:
+stbi_gif_parse_colortable	cbits/stb_image.c	/^static void stbi_gif_parse_colortable(stbi *s, uint8 pal[256][4], int num_entries, int transp)$/;"	f	file:
+stbi_gif_struct	cbits/stb_image.c	/^typedef struct stbi_gif_struct$/;"	s	file:
+stbi_gif_test	cbits/stb_image.c	/^static int stbi_gif_test(stbi *s)$/;"	f	file:
+stbi_hdr_info	cbits/stb_image.c	/^static int stbi_hdr_info(stbi *s, int *x, int *y, int *comp)$/;"	f	file:
+stbi_hdr_load	cbits/stb_image.c	/^static float *stbi_hdr_load(stbi *s, int *x, int *y, int *comp, int req_comp)$/;"	f	file:
+stbi_hdr_test	cbits/stb_image.c	/^static int stbi_hdr_test(stbi* s)$/;"	f	file:
+stbi_hdr_to_ldr_gamma	cbits/stb_image.c	/^void   stbi_hdr_to_ldr_gamma(float gamma) { h2l_gamma_i = 1\/gamma; }$/;"	f
+stbi_hdr_to_ldr_scale	cbits/stb_image.c	/^void   stbi_hdr_to_ldr_scale(float scale) { h2l_scale_i = 1\/scale; }$/;"	f
+stbi_idct_8x8	cbits/stb_image.c	/^typedef void (*stbi_idct_8x8)(stbi_uc *out, int out_stride, short data[64], unsigned short *dequantize);$/;"	t	file:
+stbi_idct_installed	cbits/stb_image.c	/^static stbi_idct_8x8 stbi_idct_installed = idct_block;$/;"	v	file:
+stbi_image_free	cbits/stb_image.c	/^void stbi_image_free(void *retval_from_stbi_load)$/;"	f
+stbi_info	cbits/stb_image.c	/^int stbi_info(char const *filename, int *x, int *y, int *comp)$/;"	f
+stbi_info_from_callbacks	cbits/stb_image.c	/^int stbi_info_from_callbacks(stbi_io_callbacks const *c, void *user, int *x, int *y, int *comp)$/;"	f
+stbi_info_from_file	cbits/stb_image.c	/^int stbi_info_from_file(FILE *f, int *x, int *y, int *comp)$/;"	f
+stbi_info_from_memory	cbits/stb_image.c	/^int stbi_info_from_memory(stbi_uc const *buffer, int len, int *x, int *y, int *comp)$/;"	f
+stbi_info_main	cbits/stb_image.c	/^static int stbi_info_main(stbi *s, int *x, int *y, int *comp)$/;"	f	file:
+stbi_inline	cbits/stb_image.c	351;"	d	file:
+stbi_inline	cbits/stb_image.c	353;"	d	file:
+stbi_inline	cbits/stb_image.c	356;"	d	file:
+stbi_install_YCbCr_to_RGB	cbits/stb_image.c	/^void stbi_install_YCbCr_to_RGB(stbi_YCbCr_to_RGB_run func)$/;"	f
+stbi_install_idct	cbits/stb_image.c	/^void stbi_install_idct(stbi_idct_8x8 func)$/;"	f
+stbi_io_callbacks	cbits/stb_image.c	/^} stbi_io_callbacks;$/;"	t	typeref:struct:__anon2	file:
+stbi_is_hdr	cbits/stb_image.c	/^extern int      stbi_is_hdr          (char const *filename)$/;"	f
+stbi_is_hdr_from_callbacks	cbits/stb_image.c	/^extern int      stbi_is_hdr_from_callbacks(stbi_io_callbacks const *clbk, void *user)$/;"	f
+stbi_is_hdr_from_file	cbits/stb_image.c	/^extern int      stbi_is_hdr_from_file(FILE *f)$/;"	f
+stbi_is_hdr_from_memory	cbits/stb_image.c	/^int stbi_is_hdr_from_memory(stbi_uc const *buffer, int len)$/;"	f
+stbi_jpeg_info	cbits/stb_image.c	/^static int stbi_jpeg_info(stbi *s, int *x, int *y, int *comp)$/;"	f	file:
+stbi_jpeg_info_raw	cbits/stb_image.c	/^static int stbi_jpeg_info_raw(jpeg *j, int *x, int *y, int *comp)$/;"	f	file:
+stbi_jpeg_load	cbits/stb_image.c	/^static unsigned char *stbi_jpeg_load(stbi *s, int *x, int *y, int *comp, int req_comp)$/;"	f	file:
+stbi_jpeg_test	cbits/stb_image.c	/^static int stbi_jpeg_test(stbi *s)$/;"	f	file:
+stbi_ldr_to_hdr_gamma	cbits/stb_image.c	/^void   stbi_ldr_to_hdr_gamma(float gamma) { l2h_gamma = gamma; }$/;"	f
+stbi_ldr_to_hdr_scale	cbits/stb_image.c	/^void   stbi_ldr_to_hdr_scale(float scale) { l2h_scale = scale; }$/;"	f
+stbi_load	cbits/stb_image.c	/^unsigned char *stbi_load(char const *filename, int *x, int *y, int *comp, int req_comp)$/;"	f
+stbi_load_from_callbacks	cbits/stb_image.c	/^unsigned char *stbi_load_from_callbacks(stbi_io_callbacks const *clbk, void *user, int *x, int *y, int *comp, int req_comp)$/;"	f
+stbi_load_from_file	cbits/stb_image.c	/^unsigned char *stbi_load_from_file(FILE *f, int *x, int *y, int *comp, int req_comp)$/;"	f
+stbi_load_from_memory	cbits/stb_image.c	/^unsigned char *stbi_load_from_memory(stbi_uc const *buffer, int len, int *x, int *y, int *comp, int req_comp)$/;"	f
+stbi_load_main	cbits/stb_image.c	/^static unsigned char *stbi_load_main(stbi *s, int *x, int *y, int *comp, int req_comp)$/;"	f	file:
+stbi_loadf	cbits/stb_image.c	/^float *stbi_loadf(char const *filename, int *x, int *y, int *comp, int req_comp)$/;"	f
+stbi_loadf_from_callbacks	cbits/stb_image.c	/^float *stbi_loadf_from_callbacks(stbi_io_callbacks const *clbk, void *user, int *x, int *y, int *comp, int req_comp)$/;"	f
+stbi_loadf_from_file	cbits/stb_image.c	/^float *stbi_loadf_from_file(FILE *f, int *x, int *y, int *comp, int req_comp)$/;"	f
+stbi_loadf_from_memory	cbits/stb_image.c	/^float *stbi_loadf_from_memory(stbi_uc const *buffer, int len, int *x, int *y, int *comp, int req_comp)$/;"	f
+stbi_loadf_main	cbits/stb_image.c	/^float *stbi_loadf_main(stbi *s, int *x, int *y, int *comp, int req_comp)$/;"	f
+stbi_lrot	cbits/stb_image.c	382;"	d	file:
+stbi_lrot	cbits/stb_image.c	384;"	d	file:
+stbi_out_gif_code	cbits/stb_image.c	/^static void stbi_out_gif_code(stbi_gif *g, uint16 code)$/;"	f	file:
+stbi_pic_info	cbits/stb_image.c	/^static int stbi_pic_info(stbi *s, int *x, int *y, int *comp)$/;"	f	file:
+stbi_pic_load	cbits/stb_image.c	/^static stbi_uc *stbi_pic_load(stbi *s, int *x, int *y, int *comp, int req_comp)$/;"	f	file:
+stbi_pic_test	cbits/stb_image.c	/^static int stbi_pic_test(stbi *s)$/;"	f	file:
+stbi_png_info	cbits/stb_image.c	/^static int      stbi_png_info(stbi *s, int *x, int *y, int *comp)$/;"	f	file:
+stbi_png_info_raw	cbits/stb_image.c	/^static int stbi_png_info_raw(png *p, int *x, int *y, int *comp)$/;"	f	file:
+stbi_png_load	cbits/stb_image.c	/^static unsigned char *stbi_png_load(stbi *s, int *x, int *y, int *comp, int req_comp)$/;"	f	file:
+stbi_png_partial	cbits/stb_image.c	/^int stbi_png_partial; \/\/ a quick hack to only allow decoding some of a PNG... I should implement real streaming support instead$/;"	v
+stbi_png_test	cbits/stb_image.c	/^static int stbi_png_test(stbi *s)$/;"	f	file:
+stbi_process_gif_raster	cbits/stb_image.c	/^static uint8 *stbi_process_gif_raster(stbi *s, stbi_gif *g)$/;"	f	file:
+stbi_psd_info	cbits/stb_image.c	/^static int stbi_psd_info(stbi *s, int *x, int *y, int *comp)$/;"	f	file:
+stbi_psd_load	cbits/stb_image.c	/^static stbi_uc *stbi_psd_load(stbi *s, int *x, int *y, int *comp, int req_comp)$/;"	f	file:
+stbi_psd_test	cbits/stb_image.c	/^static int stbi_psd_test(stbi *s)$/;"	f	file:
+stbi_resample	cbits/stb_image.c	/^} stbi_resample;$/;"	t	typeref:struct:__anon8	file:
+stbi_rewind	cbits/stb_image.c	/^static void stbi_rewind(stbi *s)$/;"	f	file:
+stbi_set_unpremultiply_on_load	cbits/stb_image.c	/^void stbi_set_unpremultiply_on_load(int flag_true_if_should_unpremultiply)$/;"	f
+stbi_stdio_callbacks	cbits/stb_image.c	/^static stbi_io_callbacks stbi_stdio_callbacks =$/;"	v	file:
+stbi_tga_info	cbits/stb_image.c	/^int stbi_tga_info(stbi *s, int *x, int *y, int *comp)$/;"	f
+stbi_tga_load	cbits/stb_image.c	/^static stbi_uc *stbi_tga_load(stbi *s, int *x, int *y, int *comp, int req_comp)$/;"	f	file:
+stbi_tga_test	cbits/stb_image.c	/^static int stbi_tga_test(stbi *s)$/;"	f	file:
+stbi_uc	cbits/stb_image.c	/^typedef unsigned char stbi_uc;$/;"	t	file:
+stbi_uc	cbits/stb_image.h	/^typedef unsigned char stbi_uc;$/;"	t
+stbi_unpremultiply_on_load	cbits/stb_image.c	/^static int stbi_unpremultiply_on_load = 0;$/;"	v	file:
+stbi_zlib_decode_buffer	cbits/stb_image.c	/^int stbi_zlib_decode_buffer(char *obuffer, int olen, char const *ibuffer, int ilen)$/;"	f
+stbi_zlib_decode_malloc	cbits/stb_image.c	/^char *stbi_zlib_decode_malloc(char const *buffer, int len, int *outlen)$/;"	f
+stbi_zlib_decode_malloc_guesssize	cbits/stb_image.c	/^char *stbi_zlib_decode_malloc_guesssize(const char *buffer, int len, int initial_size, int *outlen)$/;"	f
+stbi_zlib_decode_malloc_guesssize_headerflag	cbits/stb_image.c	/^char *stbi_zlib_decode_malloc_guesssize_headerflag(const char *buffer, int len, int initial_size, int *outlen, int parse_header)$/;"	f
+stbi_zlib_decode_noheader_buffer	cbits/stb_image.c	/^int stbi_zlib_decode_noheader_buffer(char *obuffer, int olen, const char *ibuffer, int ilen)$/;"	f
+stbi_zlib_decode_noheader_malloc	cbits/stb_image.c	/^char *stbi_zlib_decode_noheader_malloc(char const *buffer, int len, int *outlen)$/;"	f
+stdio_eof	cbits/stb_image.c	/^static int stdio_eof(void *user)$/;"	f	file:
+stdio_read	cbits/stb_image.c	/^static int stdio_read(void *user, char *data, int size)$/;"	f	file:
+stdio_skip	cbits/stb_image.c	/^static void stdio_skip(void *user, unsigned n)$/;"	f	file:
+step	cbits/stb_image.c	/^   int parse, step;$/;"	m	struct:stbi_gif_struct	file:
+suffix	cbits/stb_image.c	/^   uint8 suffix;$/;"	m	struct:stbi_gif_lzw_struct	file:
+tga_info	cbits/stb_image.c	/^static int tga_info(stbi *s, int *x, int *y, int *comp)$/;"	f	file:
+tga_load	cbits/stb_image.c	/^static stbi_uc *tga_load(stbi *s, int *x, int *y, int *comp, int req_comp)$/;"	f	file:
+tga_test	cbits/stb_image.c	/^static int tga_test(stbi *s)$/;"	f	file:
+todo	cbits/stb_image.c	/^   int restart_interval, todo;$/;"	m	struct:__anon6	file:
+tq	cbits/stb_image.c	/^      int tq;$/;"	m	struct:__anon6::__anon7	file:
+transparent	cbits/stb_image.c	/^   int flags, bgindex, ratio, transparent, eflags;$/;"	m	struct:stbi_gif_struct	file:
+type	cbits/stb_image.c	/^   stbi_uc size,type,channel;$/;"	m	struct:__anon14	file:
+type	cbits/stb_image.c	/^   uint32 type;$/;"	m	struct:__anon11	file:
+uint	cbits/stb_image.c	/^typedef unsigned int   uint;$/;"	t	file:
+uint16	cbits/stb_image.c	/^typedef unsigned short uint16;$/;"	t	file:
+uint32	cbits/stb_image.c	/^typedef unsigned int   uint32;$/;"	t	file:
+uint8	cbits/stb_image.c	/^typedef unsigned char  uint8;$/;"	t	file:
+v	cbits/stb_image.c	/^      int h,v;$/;"	m	struct:__anon6::__anon7	file:
+validate_uint32	cbits/stb_image.c	/^typedef unsigned char validate_uint32[sizeof(uint32)==4 ? 1 : -1];$/;"	t	file:
+value	cbits/stb_image.c	/^   uint16 value[288]; $/;"	m	struct:__anon9	file:
+values	cbits/stb_image.c	/^   uint8  values[256];$/;"	m	struct:__anon5	file:
+vs	cbits/stb_image.c	/^   int hs,vs;   \/\/ expansion factor in each axis$/;"	m	struct:__anon8	file:
+w	cbits/stb_image.c	/^   int w,h;$/;"	m	struct:stbi_gif_struct	file:
+w2	cbits/stb_image.c	/^      int x,y,w2,h2;$/;"	m	struct:__anon6::__anon7	file:
+w_lores	cbits/stb_image.c	/^   int w_lores; \/\/ horizontal pixels pre-expansion $/;"	m	struct:__anon8	file:
+x	cbits/stb_image.c	/^      int x,y,w2,h2;$/;"	m	struct:__anon6::__anon7	file:
+y	cbits/stb_image.c	/^      int x,y,w2,h2;$/;"	m	struct:__anon6::__anon7	file:
+ypos	cbits/stb_image.c	/^   int ypos;    \/\/ which pre-expansion row we're on$/;"	m	struct:__anon8	file:
+ystep	cbits/stb_image.c	/^   int ystep;   \/\/ how far through vertical expansion we are$/;"	m	struct:__anon8	file:
+z_distance	cbits/stb_image.c	/^   zhuffman z_length, z_distance;$/;"	m	struct:__anon10	file:
+z_expandable	cbits/stb_image.c	/^   int   z_expandable;$/;"	m	struct:__anon10	file:
+z_length	cbits/stb_image.c	/^   zhuffman z_length, z_distance;$/;"	m	struct:__anon10	file:
+zbuf	cbits/stb_image.c	/^} zbuf;$/;"	t	typeref:struct:__anon10	file:
+zbuffer	cbits/stb_image.c	/^   uint8 *zbuffer, *zbuffer_end;$/;"	m	struct:__anon10	file:
+zbuffer_end	cbits/stb_image.c	/^   uint8 *zbuffer, *zbuffer_end;$/;"	m	struct:__anon10	file:
+zbuild_huffman	cbits/stb_image.c	/^static int zbuild_huffman(zhuffman *z, uint8 *sizelist, int num)$/;"	f	file:
+zget8	cbits/stb_image.c	/^stbi_inline static int zget8(zbuf *z)$/;"	f	file:
+zhuffman	cbits/stb_image.c	/^} zhuffman;$/;"	t	typeref:struct:__anon9	file:
+zhuffman_decode	cbits/stb_image.c	/^stbi_inline static int zhuffman_decode(zbuf *a, zhuffman *z)$/;"	f	file:
+zout	cbits/stb_image.c	/^   char *zout;$/;"	m	struct:__anon10	file:
+zout_end	cbits/stb_image.c	/^   char *zout_end;$/;"	m	struct:__anon10	file:
+zout_start	cbits/stb_image.c	/^   char *zout_start;$/;"	m	struct:__anon10	file:
+zreceive	cbits/stb_image.c	/^stbi_inline static unsigned int zreceive(zbuf *z, int n)$/;"	f	file:
