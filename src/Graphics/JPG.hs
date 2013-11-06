@@ -1,5 +1,7 @@
-{-# LANGUAGE FlexibleContexts #-}
+-- {-# LANGUAGE FlexibleContexts #-}
 module Graphics.JPG where
 
-doStuff :: String
-doStuff = "Hello, World!"
+-- Here will be a JPEG parser.
+-- It will be used on the decoder side.
+
+data Image
