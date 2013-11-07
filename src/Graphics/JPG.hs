@@ -2,20 +2,47 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Graphics.JPG where
 
-import Debug.Trace
-import Numeric
+import Debug.Trace (trace)
+import Numeric (showHex)
 
 import Control.Applicative
 import Control.Monad
 import Prelude hiding(take)
 
-import Data.Word
+import Data.Word ()
 import Data.Char
 import Data.Attoparsec.Char8
-import Data.Attoparsec.Number
+import Data.Attoparsec.Number ()
 import qualified Data.ByteString.Char8 as BS
 
-type Frame = BS.ByteString
+----------------------------
+-------- TYPES -------------
+----------------------------
+type Frame = [Segment]
+type Segment = BS.ByteString
+
+type Table a = [a] --- XXX: Temporary!
+type BC = Int
+type Run = Int
+data HuffTree a = Node (HuffTree a) (HuffTree a) | Leaf a
+
+type DCHuffTable = Table (HuffTree BC)
+type ACHuffTable = Table (HuffTree (Run, BC))
+type QTable = [[Int]] --- XXX: Temporary!
+
+-- Environment will be updated by headers.
+data Env =
+     Env {
+         huffTables :: (DCHuffTable, ACHuffTable),
+         quanTables :: Table QTable,
+         frameTable :: Table BS.ByteString
+     }
+
+data SegmentType = HuffSpec
+                 | QuaSpec
+                 | FrameHeader
+                 | ScanHeader
+                 | Unsupported
 
 -- supported markers
 data Marker = SOI -- start of input
@@ -28,34 +55,45 @@ markerCode SOI = '\xD8'
 markerCode EOI = '\xD9'
 markerCode SOF = '\xC0'
 
-byte = char
-anyByte = anyChar
 
-marker :: Marker -> Parser Char
-marker m = byte '\xFF' >> byte (markerCode m)
+---------------------------
+--------- PARSERS --------- 
+---------------------------
 
-getMarker :: Parser Char
+byte :: Char -> Parser ()
+byte = void . char
+
+anyByte :: Parser Int
+anyByte = ord <$> anyChar
+
+marker :: Marker -> Parser ()
+marker m = void $ do
+    byte '\xFF'
+    byte $ markerCode m
+
+getMarker :: Parser Int
 getMarker = byte '\xFF' >> anyByte
 
 word :: Parser Int
 word = do
     a <- anyByte
     b <- anyByte
-    return $ ord(a)*256 + ord(b)
+    return $ a * 256 + b
 
-frame :: Parser Frame
-frame = marker SOF >> return "LOL"
-
-segment :: Parser BS.ByteString
+segment :: Parser Segment
 segment = do
    m <- getMarker
    l <- word
-   trace ("Marker: " ++ showHex (ord m) " " ++
+   trace ("Marker: " ++ showHex m " " ++
           "Length: " ++ show l) $
        take (l-2)
 
-jpegImage :: Parser [Frame]
-jpegImage = marker SOI >> many segment
+-- frame :: Parser Env
+frame :: Parser Frame
+frame = many segment
+
+jpegImage :: Parser Frame
+jpegImage = marker SOI >> frame
 
 main :: IO ()
 main = do

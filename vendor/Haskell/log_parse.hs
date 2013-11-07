@@ -12,12 +12,12 @@ data Product = Mouse | Keyboard | Monitor | Speakers deriving Show
 data Source = Internet | Friend | NoAnswer deriving Show
 
 data LogEntry =
-    LogEntry {
-        entryTime    :: LocalTime,
-        entryIP      :: IP,
-        entryProduct :: Product,
-        source       :: Source
-    } deriving Show
+     LogEntry {
+         entryTime    :: LocalTime,
+         entryIP      :: IP,
+         entryProduct :: Product,
+         source       :: Source
+     } deriving Show
 
 type Log = [LogEntry]
 
@@ -25,14 +25,14 @@ type Log = [LogEntry]
 -- could be done with template haskell.
 sources :: [(BS.ByteString, Source)]
 sources =  [("internet", Internet)
-           ,("friend", Friend)
+           ,("friend",   Friend)
            ,("noanswer", NoAnswer)]
 
 products :: [(BS.ByteString, Product)]
-products = [("mouse", Mouse)
-           ,("keyboard", Keyboard)
-           ,("monitor", Monitor)
-           ,("speakers", Speakers)]
+products =  [("mouse",    Mouse)
+            ,("keyboard", Keyboard)
+            ,("monitor",  Monitor)
+            ,("speakers", Speakers)]
 
 fromString :: (BS.ByteString, a) -> Parser a
 fromString (s, a) = string s >> return a
