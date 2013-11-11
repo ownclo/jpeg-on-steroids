@@ -24,7 +24,6 @@ import qualified Data.ByteString.Char8 as BS
 type Byte = Word8
 type Word = Word16
 
-type Frame = [Segment]
 type Segment = BS.ByteString
 
 type Table a = [a] --- XXX: Temporary!
@@ -102,9 +101,9 @@ byte = fromIntegral <$> byteI
 
 word :: Parser Word
 word = do
-    a <- byte
-    b <- byte
-    return $ to16 a * 256 + to16 b
+        a <- byte
+        b <- byte
+        return $ to16 a * 256 + to16 b
         where to16 a = fromIntegral a :: Word16
 
 nibbles :: Parser (Byte, Byte)
@@ -113,25 +112,18 @@ nibbles = liftM byte2nibs byte
 
 marker :: Marker -> Parser ()
 marker m = void $ do
-    theByte '\xFF'
-    theByte $ markerCode m
+        theByte '\xFF'
+        theByte $ markerCode m
 
 getMarker :: Parser Word8
 getMarker = theByte '\xFF' >> byte
 
-segment :: Parser Segment
-segment = do
-   m <- getMarker
-   l <- word
-   trace ("Marker: " ++ showHex m " " ++
-          "Length: " ++ show l) $
-       take (fromIntegral l - 2)
-
-frame :: Parser Frame
-frame = many segment
-
-jpegImage :: Parser Frame
-jpegImage = marker SOI >> frame
+unknownSegment :: Parser ()
+unknownSegment = do
+        m <- getMarker
+        l <- word
+        trace ("Marker: " ++ showHex m " " ++ "Length: " ++ show l) $
+            void $ take (fromIntegral l - 2)
 
 parseQuanTable :: Parser QTable
 parseQuanTable = guard False >> return []
@@ -154,28 +146,39 @@ startOfFrame = do
         fcs <- n `count` frameCompSpec
         return $ FrameHeader (toDim (y, x)) fcs
 
-addQuanTable :: EnvParser ()
-addQuanTable = do
+quanTable :: EnvParser ()
+quanTable = do
         table <- lift parseQuanTable
         quanTables %= (table:)
 
-addFrameDesc :: EnvParser ()
-addFrameDesc = do
+frameDesc :: EnvParser ()
+frameDesc = do
         hdr <- lift startOfFrame
         frameHeader .= hdr
 
-skipSegment :: EnvParser ()
-skipSegment = void $ lift segment
+knownSegments :: [EnvParser ()]
+knownSegments = [ quanTable
+                , frameDesc
+                ]
+
+eitherOf :: (Alternative f) => [f a] -> f a
+eitherOf = foldl1 (<|>)
 
 jpegHeader :: EnvParser ()
 jpegHeader = void $ do
     lift $ marker SOI
-    many $ addQuanTable <|> addFrameDesc <|> skipSegment
+    many $ eitherOf knownSegments <|> lift unknownSegment
 
--- TODO: - use lenses for accessing fields of Env record.
---       - create `choice` function for EnvParser.
+-- XXX: This is used for debugging purposes only!
+jpegImage :: Parser [()]
+jpegImage = marker SOI >> many unknownSegment
+
+-- TODO: - Implement all primitive parsers.
+--       - Encode structural constraints upon segment precedence order
+--         (e.g. SOS cannot preceed SOF)
+--       - Replace 'Table' definition from '[]' to 'Map'
 main :: IO ()
 main = do
         contents <- BS.readFile "img/sample.jpg"
         print $ parseEnv jpegHeader contents
---         print $ parseOnly jpegImage contents
+        print $ parseOnly jpegImage contents
