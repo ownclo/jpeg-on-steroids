@@ -7,17 +7,18 @@ License-file:        license.txt
 Author:              Roman Sokolovskiy
 Maintainer:          sokolovskiy.roman@gmail.com
 Build-Type:          Simple
-Cabal-Version:       >=1.2
+Cabal-Version:       >=1.8
 Synopsis:            A library for decoding JPEG files written in pure Haskell
                      (revisited version of older jpeg implementation)
-
 
 Library
   build-depends:     base >= 3 && < 5, mtl,
                      attoparsec,
                      bytestring,
-                     hmatrix
-  exposed-modules:   Graphics.JPG
+                     hmatrix,
+                     lens
+  exposed-modules:   Graphics.JPG,
+                     Graphics.DCT
   ghc-options:       -Wall
   hs-source-dirs:    src
 
@@ -25,8 +26,10 @@ Test-Suite test-jpeg
   type:            exitcode-stdio-1.0
   main-is:         test-jpeg.hs
   hs-source-dirs:  tests
-  build-depends:   QuickCheck >= 2.4 && < 2.7,
+  build-depends:   jpeg-on-steroids,
+                   hmatrix,
+                   haskell2010,
+                   QuickCheck >= 2.4 && < 2.7,
                    test-framework >= 0.3 && < 0.9,
                    test-framework-hunit >= 0.2 && < 0.4,
                    test-framework-quickcheck2 >= 0.2.9 && < 0.4
-

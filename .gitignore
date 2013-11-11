@@ -2,3 +2,4 @@ dist/
 *.hi
 *.o
 Session.vim
+cabal-dev/
