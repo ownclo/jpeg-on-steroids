@@ -7,26 +7,28 @@ spt :: Int -> Double
 spt 0 = sqrt 0.125
 spt x = sqrt 0.25
 
+dctCoeff (i, j) = spt i * cos((j' + 0.5)*i'*pi*0.125)
+    where i' = fromIntegral i
+          j' = fromIntegral j
+
+dctMat :: Matrix Double
+dctMat = buildMatrix 8 8 dctCoeff
+
+idctMat :: Matrix Double
+idctMat = trans dctMat
+
+transformWith :: (Product a) => Matrix a -> Matrix a -> Matrix a
+transformWith !m !t = t `multiply` m `multiply` trans t
+
 -- Perform DCT on a 8x8 matrix.
 dct :: Matrix Double -> Matrix Double
-dct datM = do
-    let dctMat = buildMatrix 8 8 (\(i,j) -> (spt i * cos((fromIntegral j + 0.5)*fromIntegral i*pi*0.125)) )
-    let !result = multiply (multiply dctMat datM) (trans dctMat)
-    result
+dct datM = datM `transformWith` dctMat
 
 -- Perform IDCT on a 8x8 matrix.
 idct :: Matrix Double -> Matrix Double
-idct datM = do
-    let dctMat = buildMatrix 8 8 (\(i,j) -> (spt j * cos((fromIntegral i + 0.5)*fromIntegral j*pi*0.125)) )
-    let !result = multiply (multiply dctMat datM) (trans dctMat)
-    result
+idct datM = datM `transformWith` idctMat
 
---prepTest :: Int -> [Mddatrix Double]
---prepTest ret = do
---  let testM = []
-
--- Main.
 main :: IO()
 main = do 
-    let testMat = buildMatrix 8 8 ( \(i,j) -> fromIntegral(i + j))
+    let testMat = buildMatrix 8 8 $ \(i,j) -> fromIntegral(i + j)
     print $ idct (dct testMat)
