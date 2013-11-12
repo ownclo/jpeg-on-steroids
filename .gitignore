@@ -3,3 +3,4 @@ dist/
 *.o
 Session.vim
 cabal-dev/
+.hsenv
