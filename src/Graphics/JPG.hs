@@ -1,10 +1,12 @@
-{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE BangPatterns #-}
+{-# LANGUAGE DeriveFunctor #-}
+{-# LANGUAGE DoAndIfThenElse #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell #-}
 
 module Graphics.JPG where
 
-import Debug.Trace (trace, traceShow)
+import Debug.Trace (trace)
 import Numeric (showHex)
 
 import Control.Applicative
@@ -29,7 +31,8 @@ type Word = Word16
 data Marker = SOI -- start of input
             | EOI -- end of input
             | SOF -- start of frame
-            | DQT -- Define quantization table
+            | DQT -- define quantization table
+            | DHT -- define huffman table
     deriving Show
 
 markerCode :: Marker -> Char
@@ -37,19 +40,20 @@ markerCode SOI = '\xD8'
 markerCode EOI = '\xD9'
 markerCode SOF = '\xC0'
 markerCode DQT = '\xDB'
-
-
-type Segment = BS.ByteString
+markerCode DHT = '\xC4'
 
 type Table a = M.Map Int a
 type BC = Int
 type Run = Int
-data HuffTree a = Node (HuffTree a) (HuffTree a)
-                | Leaf a
-                deriving Show
+data HTree a = Node (HTree a) (HTree a)
+             | Leaf a
+             | Nil -- for trees with odd number of leaves
+             deriving (Show, Functor)
 
-type DCHuffTable = Table (HuffTree BC)
-type ACHuffTable = Table (HuffTree (Run, BC))
+type DCHuffTable = Table (HTree BC)
+type ACHuffTable = Table (HTree (Run, BC))
+data HClass  = ACHuff | DCHuff deriving Show
+
 type QTable = [Int] --- XXX: Temporary!
 
 data Dim a = Dim {
@@ -60,24 +64,35 @@ toDim :: (a, a) -> Dim a
 toDim (!y, !x) = Dim y x
 
 data CompSpec = CompSpec {
-              _id :: {-# UNPACK #-} !Byte, -- component identifier
-              _sf :: Dim Byte,             -- sampling factors
-              _tq :: {-# UNPACK #-} !Byte  -- quantization table index
+            _compId :: {-# UNPACK #-} !Byte, -- component identifier
+            _sf     :: Dim Byte,             -- sampling factors
+            _tq     :: {-# UNPACK #-} !Byte  -- quantization table index
     } deriving Show
 
 data FrameHeader = FrameHeader {
-                 _size :: Dim Word,
-                 _fcs  :: [CompSpec]
+            _size :: Dim Word,  -- size of an image
+            _fcs  :: [CompSpec] -- frame component specification
+    } deriving Show
+
+data HuffmanSegment = HFS {
+            _type    :: !HClass,
+            _tableId :: {-# UNPACK #-} !Byte,
+            _tree    :: HTree Int
+    } deriving Show
+
+data HuffTables = HuffTables {
+            _dcTable :: DCHuffTable,
+            _acTable :: ACHuffTable
     } deriving Show
 
 -- Environment will be updated by headers.
 data Env = Env {
-         _hufTables   :: (DCHuffTable, ACHuffTable),
-         _qTables     :: Table QTable,
-         _frameHeader :: FrameHeader
+            _huffTables  :: HuffTables,
+            _qTables     :: Table QTable,
+            _frameHeader :: FrameHeader
     } deriving Show
-
 makeLenses ''Env
+makeLenses ''HuffTables
 
 
 --- ENVIRONMENT MANAGEMENT ---
@@ -86,14 +101,52 @@ type EnvParser = StateT Env Parser
 parseEnv :: EnvParser a -> BS.ByteString -> Either String (a, Env)
 parseEnv f = parseOnly $ runStateT f initialEnv
     where initialEnv = Env {
-               _hufTables   = (emptyTable, emptyTable)
+               _huffTables  = HuffTables emptyTable emptyTable
               ,_qTables     = emptyTable
               ,_frameHeader = error "No frame header found"}
           emptyTable = M.empty
 
 
 ---------------------------
---------- PARSERS --------- 
+---- MISC FUNCTIONS -------
+---------------------------
+byte2nibs :: (Integral a) => a -> (a, a)
+byte2nibs = (`divMod` 16)
+
+fI :: (Integral a, Num b) => a -> b
+fI = fromIntegral
+
+hClassFromIndex :: Byte -> HClass
+hClassFromIndex 0 = DCHuff
+hClassFromIndex _ = ACHuff
+
+
+--------------------------
+---- HUFFMAN TREES -------
+--------------------------
+
+-- WARN! If the tree is malformed, the code will blow up
+-- with runtime exception:
+-- evalState (build 0) $ [(0,1), (1,3), (2,3)]
+build :: Int -> State [(a,Int)] (HTree a)
+build n = do
+        isEmpty <- liftM null get
+        if isEmpty then return Nil -- odd number of leaves
+        else do
+            (v,s):xs <- get
+            if n==s -- leaf
+            then put xs >> return (Leaf v)
+            else do x <- build (n+1)
+                    y <- build (n+1)
+                    return $ Node x y
+
+buildHuffmanTree :: [[a]] -> HTree a
+buildHuffmanTree =  evalState (build 0) . concat . zipWith f [1..16]
+         where  f s = map (\v->(v,s))
+
+
+---------------------------
+---- PRIMITIVE PARSERS ----
 ---------------------------
 skip :: Int -> Parser ()
 skip = void . take
@@ -105,14 +158,14 @@ byteI :: Parser Int
 byteI = ord <$> anyChar
 
 byte :: Parser Byte
-byte = fromIntegral <$> byteI
+byte = fI <$> byteI
 
 word :: Parser Word
 word = do
         a <- byte
         b <- byte
         return $ to16 a * 256 + to16 b
-        where to16 a = fromIntegral a :: Word16
+        where to16 a = fI a :: Word16
 
 wordI :: Parser Int
 wordI = do
@@ -122,7 +175,6 @@ wordI = do
 
 nibbles :: Parser (Byte, Byte)
 nibbles = liftM byte2nibs byte
-    where byte2nibs = (`divMod` 16)
 
 marker :: Marker -> Parser ()
 marker m = void $ do
@@ -132,6 +184,10 @@ marker m = void $ do
 getMarker :: Parser Word8
 getMarker = theByte '\xFF' >> byte
 
+
+---------------------------
+----- SEGMENT PARSERS -----
+---------------------------
 unknownSegment :: Parser ()
 unknownSegment = do
         mark <- getMarker
@@ -140,14 +196,14 @@ unknownSegment = do
             ++ "Length: " ++ show len) $ return ()
         skip $ len - 2 -- the length of 'len' (Word16) itself is included.
 
-parseQuanTable :: Parser (Int, QTable)
-parseQuanTable = do
+quanTable :: Parser (Int, QTable)
+quanTable = do
         (p, id) <- nibbles
         qTable  <- 64 `count` (if p==0 then byteI else wordI)
-        return (fromIntegral id, qTable)
+        return (fI id, qTable)
 
 -- NOTE: QTable consists of 64 quantization parameters.
--- A QTable can have 1- or 2-byte precision. Yet another byte
+-- A QTable can be of 1- or 2-byte precision. Yet another byte
 -- precedes q-values. That byte indicates the type of precision
 -- and the index of QTable (see parseQuanTable). So, the size
 -- of each table is 1 + (1|2)*64. How can we deduce the number
@@ -160,13 +216,12 @@ parseQuanTable = do
 -- The last equation holds iff k < 64. We assume that this is
 -- the case for any image (not necessarily, but more than likely),
 -- because the index space of QTables is of 4 bit size.
-manyQuanTables :: Parser [(Int, QTable)]
-manyQuanTables = do
+quanTablesSegment :: Parser [(Int, QTable)]
+quanTablesSegment = do
         marker DQT
         len <- wordI
         let n = (len - 2) `rem` 64 -- WHY? See the comment above.
-        traceShow (len, n) $ return ()
-        n `count` parseQuanTable
+        n `count` quanTable
 
 frameCompSpec :: Parser CompSpec
 frameCompSpec = do
@@ -186,13 +241,40 @@ startOfFrame = do
         fcs <- n `count` frameCompSpec
         return $ FrameHeader (toDim (y, x)) fcs
 
+huffTableSegment :: Parser HuffmanSegment
+huffTableSegment = do
+        marker DHT
+        _ <- word              -- length, unused
+        (tc, th) <- nibbles    -- table class (ac | dc), table header (aka id)
+        ls <- 16 `count` byteI -- number of huffman codes with given length
+        values <- mapM (`count` byteI) ls
+
+        let hClass = hClassFromIndex tc
+            id = fI th -- that was a bad name
+            tree = buildHuffmanTree values
+
+        return $ HFS hClass id tree
+
+
+---------------------------
+--- ENVIRONMENT PARSERS ---
+---------------------------
+
 -- NOTE: The order is relevant!
 -- 'new `union` old' OVERRIDES duplicated keys from old to new,
--- whereas 'old `union` new' doesn't
+-- whereas 'old `union` new' doesn't. We need the first.
 quanTables :: EnvParser ()
 quanTables = do
-        tables <- M.fromList <$> lift manyQuanTables
+        tables <- M.fromList <$> lift quanTablesSegment
         qTables %= M.union tables
+
+huffTable :: EnvParser ()
+huffTable = do
+        HFS hClass id' tree <- lift huffTableSegment
+        let id = fI id'
+        case hClass of
+             DCHuff -> huffTables.dcTable %= M.insert id tree
+             ACHuff -> huffTables.acTable %= M.insert id (fmap byte2nibs tree)
 
 frameDesc :: EnvParser ()
 frameDesc = do
@@ -201,6 +283,7 @@ frameDesc = do
 
 knownSegments :: [EnvParser ()]
 knownSegments =  [quanTables
+                 ,huffTable
                  ,frameDesc
                  ]
 

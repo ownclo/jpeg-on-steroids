@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE BangPatterns #-}
 module Graphics.JPEG where
 
 import Data.Char(chr,ord)
@@ -193,23 +194,29 @@ sfCurry h b = do a <- get
 ----------------------------------------------
 -- Huffman Trees
 ----------------------------------------------
+traceShow' x = trace (show x) x
 
 -- WARN! If the tree is malformed, the code will blow up
 -- with runtime exception:
 -- evalState (build 0) $ [(0,1), (1,3), (2,3)]
-build :: Monad (State [(a,Int)]) => Int -> State [(a,Int)] (Tree a)
+build :: (Monad (State [(a,Int)]), Show a) => Int -> State [(a,Int)] (Tree a)
 build n = do b     <- empty
-             (_,s) <- peekitem
-             t     <- if   n==s
-                      then do (v,_) <- item
-                              return $ Tip v
-                      else do x <- build (n+1)
-                              y <- build (n+1)
-                              return $ Bin x y
-             return $ if b then Nil else t
+             if b then return Nil
+             else do
+                 (_,s) <- peekitem
+    --              !ss <- liftM traceShow' get
+    --              _ <- trace ("DATA: " ++ show (v,s) ++
+    --                         " LEVEL: " ++ show n) $ return (Tip v)
+                 t     <- if   n==s
+                          then do (v,_) <- item
+                                  return $ Tip v
+                          else do x <- build (n+1)
+                                  y <- build (n+1)
+                                  return $ Bin x y
+                 return $ if b then Nil else t
 
 
-huffmanTree ::  Monad (State [(a,Int)]) => [[a]] -> Tree a
+huffmanTree ::  (Monad (State [(a,Int)]), Show a) => [[a]] -> Tree a
 huffmanTree  =  evalState (build 0) . concat . zipWith f [1..16]
          where  f s = map (\v->(v,s))
 
