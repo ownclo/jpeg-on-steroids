@@ -16,6 +16,7 @@ Library
                      attoparsec,
                      bytestring,
                      hmatrix,
+                     containers,
                      lens
   exposed-modules:   Graphics.JPG,
                      Graphics.DCT

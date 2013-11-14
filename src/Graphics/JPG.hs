@@ -4,7 +4,7 @@
 
 module Graphics.JPG where
 
-import Debug.Trace (trace)
+import Debug.Trace (trace, traceShow)
 import Numeric (showHex)
 
 import Control.Applicative
@@ -12,6 +12,7 @@ import Control.Monad.State
 import Prelude hiding(take, id)
 
 import Control.Lens(makeLenses, (.=), (%=))
+import qualified Data.Map as M
 import Data.Word (Word8, Word16)
 import Data.Char
 import Data.Attoparsec.Char8
@@ -24,9 +25,23 @@ import qualified Data.ByteString.Char8 as BS
 type Byte = Word8
 type Word = Word16
 
+-- supported markers
+data Marker = SOI -- start of input
+            | EOI -- end of input
+            | SOF -- start of frame
+            | DQT -- Define quantization table
+    deriving Show
+
+markerCode :: Marker -> Char
+markerCode SOI = '\xD8'
+markerCode EOI = '\xD9'
+markerCode SOF = '\xC0'
+markerCode DQT = '\xDB'
+
+
 type Segment = BS.ByteString
 
-type Table a = [a] --- XXX: Temporary!
+type Table a = M.Map Int a
 type BC = Int
 type Run = Int
 data HuffTree a = Node (HuffTree a) (HuffTree a)
@@ -35,7 +50,7 @@ data HuffTree a = Node (HuffTree a) (HuffTree a)
 
 type DCHuffTable = Table (HuffTree BC)
 type ACHuffTable = Table (HuffTree (Run, BC))
-type QTable = [[Int]] --- XXX: Temporary!
+type QTable = [Int] --- XXX: Temporary!
 
 data Dim a = Dim {
            _y :: !a, _x :: !a
@@ -57,12 +72,13 @@ data FrameHeader = FrameHeader {
 
 -- Environment will be updated by headers.
 data Env = Env {
-         _huffTables  :: (DCHuffTable, ACHuffTable),
-         _quanTables  :: Table QTable,
+         _hufTables   :: (DCHuffTable, ACHuffTable),
+         _qTables     :: Table QTable,
          _frameHeader :: FrameHeader
-     } deriving Show
+    } deriving Show
 
 makeLenses ''Env
+
 
 --- ENVIRONMENT MANAGEMENT ---
 type EnvParser = StateT Env Parser
@@ -70,26 +86,18 @@ type EnvParser = StateT Env Parser
 parseEnv :: EnvParser a -> BS.ByteString -> Either String (a, Env)
 parseEnv f = parseOnly $ runStateT f initialEnv
     where initialEnv = Env {
-               _huffTables  = (emptyTable, emptyTable)
-              ,_quanTables  = emptyTable
+               _hufTables   = (emptyTable, emptyTable)
+              ,_qTables     = emptyTable
               ,_frameHeader = error "No frame header found"}
-          emptyTable = []
-
--- supported markers
-data Marker = SOI -- start of input
-            | EOI -- end of input
-            | SOF -- start of frame
-    deriving Show
-
-markerCode :: Marker -> Char
-markerCode SOI = '\xD8'
-markerCode EOI = '\xD9'
-markerCode SOF = '\xC0'
+          emptyTable = M.empty
 
 
 ---------------------------
 --------- PARSERS --------- 
 ---------------------------
+skip :: Int -> Parser ()
+skip = void . take
+
 theByte :: Char -> Parser ()
 theByte = void . char
 
@@ -106,6 +114,12 @@ word = do
         return $ to16 a * 256 + to16 b
         where to16 a = fromIntegral a :: Word16
 
+wordI :: Parser Int
+wordI = do
+        a <- byteI
+        b <- byteI
+        return $ a * 256 + b
+
 nibbles :: Parser (Byte, Byte)
 nibbles = liftM byte2nibs byte
     where byte2nibs = (`divMod` 16)
@@ -120,13 +134,39 @@ getMarker = theByte '\xFF' >> byte
 
 unknownSegment :: Parser ()
 unknownSegment = do
-        m <- getMarker
-        l <- word
-        trace ("Marker: " ++ showHex m " " ++ "Length: " ++ show l) $
-            void $ take (fromIntegral l - 2)
+        mark <- getMarker
+        len  <- wordI
+        trace ("Marker: " ++ showHex mark " "
+            ++ "Length: " ++ show len) $ return ()
+        skip $ len - 2 -- the length of 'len' (Word16) itself is included.
 
-parseQuanTable :: Parser QTable
-parseQuanTable = guard False >> return []
+parseQuanTable :: Parser (Int, QTable)
+parseQuanTable = do
+        (p, id) <- nibbles
+        qTable  <- 64 `count` (if p==0 then byteI else wordI)
+        return (fromIntegral id, qTable)
+
+-- NOTE: QTable consists of 64 quantization parameters.
+-- A QTable can have 1- or 2-byte precision. Yet another byte
+-- precedes q-values. That byte indicates the type of precision
+-- and the index of QTable (see parseQuanTable). So, the size
+-- of each table is 1 + (1|2)*64. How can we deduce the number
+-- of QTables given their accumulative length? As it can be
+-- seen, the number of extra bytes indicates this properly.
+--      len = k * (1 + (1|2)*64)
+--      len mod 64 = k mod 64 + k*(1|2)*64 mod 64
+--      len mod 64 = k mod 64
+--      len mod 64 = k // see below.
+-- The last equation holds iff k < 64. We assume that this is
+-- the case for any image (not necessarily, but more than likely),
+-- because the index space of QTables is of 4 bit size.
+manyQuanTables :: Parser [(Int, QTable)]
+manyQuanTables = do
+        marker DQT
+        len <- wordI
+        let n = (len - 2) `rem` 64 -- WHY? See the comment above.
+        traceShow (len, n) $ return ()
+        n `count` parseQuanTable
 
 frameCompSpec :: Parser CompSpec
 frameCompSpec = do
@@ -139,17 +179,20 @@ startOfFrame :: Parser FrameHeader
 startOfFrame = do
         marker SOF
         _ <- word  -- Length. Assuming that length does match.
-        _ <- byte  -- Sample precision. Unsupported.
-        y <- word
-        x <- word
+        _ <- byte  -- Sample precision. Unsupported (always byte)
+        y <- word  -- Vertical size of a picture (in pixels)
+        x <- word  -- Horizonal size of a picture (in pixels)
         n <- byteI -- Number of color components.
         fcs <- n `count` frameCompSpec
         return $ FrameHeader (toDim (y, x)) fcs
 
-quanTable :: EnvParser ()
-quanTable = do
-        table <- lift parseQuanTable
-        quanTables %= (table:)
+-- NOTE: The order is relevant!
+-- 'new `union` old' OVERRIDES duplicated keys from old to new,
+-- whereas 'old `union` new' doesn't
+quanTables :: EnvParser ()
+quanTables = do
+        tables <- M.fromList <$> lift manyQuanTables
+        qTables %= M.union tables
 
 frameDesc :: EnvParser ()
 frameDesc = do
@@ -157,9 +200,9 @@ frameDesc = do
         frameHeader .= hdr
 
 knownSegments :: [EnvParser ()]
-knownSegments = [ quanTable
-                , frameDesc
-                ]
+knownSegments =  [quanTables
+                 ,frameDesc
+                 ]
 
 eitherOf :: (Alternative f) => [f a] -> f a
 eitherOf = foldl1 (<|>)
@@ -176,7 +219,6 @@ jpegImage = marker SOI >> many unknownSegment
 -- TODO: - Implement all primitive parsers.
 --       - Encode structural constraints upon segment precedence order
 --         (e.g. SOS cannot preceed SOF)
---       - Replace 'Table' definition from '[]' to 'Map'
 main :: IO ()
 main = do
         contents <- BS.readFile "img/sample.jpg"
