@@ -46,6 +46,7 @@ markerCodes =  [(SOI, '\xD8')
 knownMarkers :: String -- <- [Char]
 knownMarkers = map snd markerCodes
 
+-- fromJust is either safe, or it is pointless to continue.
 markerCode :: Marker -> Char
 markerCode = fromJust . (`lookup` markerCodes) -- that's safe, I guarantee it.
 
@@ -114,9 +115,15 @@ makeLenses ''HuffTables
 --- ENVIRONMENT MANAGEMENT ---
 type EnvParser = StateT Env Parser
 
-parseEnv :: EnvParser a -> BS.ByteString -> Either String (a, Env)
-parseEnv f = parseOnly $ runStateT f initialEnv
-    where initialEnv = Env {
+parseEnv :: EnvParser a -> BS.ByteString -> Maybe (BS.ByteString, Env)
+parseEnv f = toMaybe `o` parse $ runStateT f initialEnv
+    where toMaybe (Fail _ _ _) = Nothing -- replace with Either, if needed.
+          toMaybe (Partial _)  = Nothing
+          toMaybe (Done r (_, env)) = Just (r, env)
+
+          o = (.).(.) -- (g `o` h) x y = g (h x y)
+
+          initialEnv = Env {
                _huffTables  = HuffTables emptyTable emptyTable
               ,_qTables     = emptyTable
               ,_frameHeader = error "No frame header found"
@@ -321,17 +328,20 @@ markerSegments = [quanTables, huffTable, lift unknownSegment]
 eitherOf :: (Alternative f) => [f a] -> f a
 eitherOf = foldl1 (<|>)
 
+tablesMisc :: EnvParser ()
+tablesMisc = void . many $ eitherOf markerSegments
+
 jpegHeader :: EnvParser ()
 jpegHeader = do
         lift $ marker SOI
-        void . many $ eitherOf markerSegments
-        frameDesc
-        void . many $ eitherOf markerSegments
-        scanDesc
+        tablesMisc >> frameDesc
+        tablesMisc >> scanDesc
 
 -- TODO: - Encode structural constraints upon segment precedence order
 --         (e.g. SOS cannot preceed SOF)
 main :: IO ()
 main = do
         contents <- BS.readFile "img/sample.jpg"
-        print $ parseEnv jpegHeader contents
+        case parseEnv jpegHeader contents of
+             Nothing -> putStrLn "JPEG Header corrupted (aborted)"
+             Just (rest, header) -> print header
