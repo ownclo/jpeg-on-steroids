@@ -1,4 +1,4 @@
-Name:                jpeg-on-steroids
+Name:                jpg
 Version:             0.0.1
 Category:            Graphics
 Description:         JPEG Decompression library (revisited)
@@ -26,7 +26,7 @@ Test-Suite test-jpeg
   type:            exitcode-stdio-1.0
   main-is:         test-jpeg.hs
   hs-source-dirs:  tests
-  build-depends:   jpeg-on-steroids,
+  build-depends:   jpg,
                    hmatrix,
                    haskell2010,
                    QuickCheck >= 2.4 && < 2.7,
