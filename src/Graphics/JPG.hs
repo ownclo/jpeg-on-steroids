@@ -117,8 +117,8 @@ type EnvParser = StateT Env Parser
 
 parseEnv :: EnvParser a -> BS.ByteString -> Maybe (BS.ByteString, Env)
 parseEnv f = toMaybe `o` parse $ runStateT f initialEnv
-    where toMaybe (Fail _ _ _) = Nothing -- replace with Either, if needed.
-          toMaybe (Partial _)  = Nothing
+    where toMaybe (Fail{}) = Nothing -- replace with Either, if needed.
+          toMaybe (Partial _) = Nothing
           toMaybe (Done r (_, env)) = Just (r, env)
 
           o = (.).(.) -- (g `o` h) x y = g (h x y)
