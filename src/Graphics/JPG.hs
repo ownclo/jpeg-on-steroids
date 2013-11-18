@@ -6,14 +6,13 @@
 
 module Graphics.JPG where
 
-import Debug.Trace (trace)
-import Numeric (showHex)
-
 import Control.Applicative
 import Control.Monad.State
 import Prelude hiding(take, id)
+import Data.Maybe(fromJust)
 
 import Control.Lens(makeLenses, (.=), (%=))
+       -- l .= v -> substitute; l %= f -> modify state with f
 import qualified Data.Map as M
 import Data.Word (Word8, Word16)
 import Data.Char
@@ -31,16 +30,24 @@ type Word = Word16
 data Marker = SOI -- start of input
             | EOI -- end of input
             | SOF -- start of frame
+            | SOS -- start of scan
             | DQT -- define quantization table
             | DHT -- define huffman table
-    deriving Show
+    deriving (Show, Eq)
+
+markerCodes :: [(Marker, Char)]
+markerCodes =  [(SOI, '\xD8')
+               ,(EOI, '\xD9')
+               ,(SOF, '\xC0')
+               ,(SOS, '\xDA')
+               ,(DQT, '\xDB')
+               ,(DHT, '\xC4')]
+
+knownMarkers :: String -- <- [Char]
+knownMarkers = map snd markerCodes
 
 markerCode :: Marker -> Char
-markerCode SOI = '\xD8'
-markerCode EOI = '\xD9'
-markerCode SOF = '\xC0'
-markerCode DQT = '\xDB'
-markerCode DHT = '\xC4'
+markerCode = fromJust . (`lookup` markerCodes) -- that's safe, I guarantee it.
 
 type Table a = M.Map Int a
 type BC = Int
@@ -74,22 +81,31 @@ data FrameHeader = FrameHeader {
             _fcs  :: [CompSpec] -- frame component specification
     } deriving Show
 
-data HuffmanSegment = HFS {
-            _type    :: !HClass,
-            _tableId :: {-# UNPACK #-} !Byte,
-            _tree    :: HTree Int
+data ScanCompSpec = ScanCompSpec {
+            _scId :: {-# UNPACK #-} !Byte, -- component identifier (within a scan)
+            _dcId :: {-# UNPACK #-} !Byte, -- DC table to be used within component
+            _acId :: {-# UNPACK #-} !Byte  -- AC table to be used within component
     } deriving Show
 
-data HuffTables = HuffTables {
+type ScanHeader = [ScanCompSpec]
+
+data HuffmanSegment = HFS {
+            _type    :: !HClass,              -- AC or DC table
+            _tableId :: {-# UNPACK #-} !Byte, -- id of a table (see _dcId)
+            _tree    :: HTree Int             -- Huffman tree
+    } deriving Show
+
+data HuffTables = HuffTables { -- retrieves a huffman tree given its type and id.
             _dcTable :: DCHuffTable,
             _acTable :: ACHuffTable
     } deriving Show
 
 -- Environment will be updated by headers.
 data Env = Env {
-            _huffTables  :: HuffTables,
-            _qTables     :: Table QTable,
-            _frameHeader :: FrameHeader
+            _huffTables  :: HuffTables,   -- added by DHT (HuffmanSegment)
+            _qTables     :: Table QTable, -- added by DQT
+            _frameHeader :: FrameHeader,  -- added by SOF
+            _scanHeader  :: ScanHeader    -- added by SOS
     } deriving Show
 makeLenses ''Env
 makeLenses ''HuffTables
@@ -103,7 +119,8 @@ parseEnv f = parseOnly $ runStateT f initialEnv
     where initialEnv = Env {
                _huffTables  = HuffTables emptyTable emptyTable
               ,_qTables     = emptyTable
-              ,_frameHeader = error "No frame header found"}
+              ,_frameHeader = error "No frame header found"
+              ,_scanHeader  = error "No scan header found"}
           emptyTable = M.empty
 
 
@@ -181,8 +198,8 @@ marker m = void $ do
         theByte '\xFF'
         theByte $ markerCode m
 
-getMarker :: Parser Word8
-getMarker = theByte '\xFF' >> byte
+getMarker :: Parser Char
+getMarker = theByte '\xFF' >> anyChar
 
 
 ---------------------------
@@ -191,9 +208,8 @@ getMarker = theByte '\xFF' >> byte
 unknownSegment :: Parser ()
 unknownSegment = do
         mark <- getMarker
+        guard (mark `notElem` knownMarkers)
         len  <- wordI
-        trace ("Marker: " ++ showHex mark " "
-            ++ "Length: " ++ show len) $ return ()
         skip $ len - 2 -- the length of 'len' (Word16) itself is included.
 
 quanTable :: Parser (Int, QTable)
@@ -241,6 +257,23 @@ startOfFrame = do
         fcs <- n `count` frameCompSpec
         return $ FrameHeader (toDim (y, x)) fcs
 
+scanCompSpec :: Parser ScanCompSpec
+scanCompSpec = do
+        cs <- byte
+        (td,ta) <- nibbles
+        return $ ScanCompSpec cs td ta
+
+startOfScan :: Parser ScanHeader
+startOfScan = do
+        marker SOS
+        _   <- word    -- length, unused
+        n   <- fI <$> byte
+        scs <- n `count` scanCompSpec
+        0   <- byte    -- ss, select spectral predictor. 0 for lossless mode.
+        63  <- byte    -- se, end of spectral predictor. always set to 63
+        _   <- nibbles -- approximation parameter. unused in sequential mode.
+        return scs
+
 huffTableSegment :: Parser HuffmanSegment
 huffTableSegment = do
         marker DHT
@@ -277,33 +310,28 @@ huffTable = do
              ACHuff -> huffTables.acTable %= M.insert id (fmap byte2nibs tree)
 
 frameDesc :: EnvParser ()
-frameDesc = do
-        hdr <- lift startOfFrame
-        frameHeader .= hdr
+frameDesc = (frameHeader .=) =<< lift startOfFrame
 
-knownSegments :: [EnvParser ()]
-knownSegments =  [quanTables
-                 ,huffTable
-                 ,frameDesc
-                 ]
+scanDesc :: EnvParser ()
+scanDesc = (scanHeader .=) =<< lift startOfScan
+
+markerSegments :: [EnvParser()]
+markerSegments = [quanTables, huffTable, lift unknownSegment]
 
 eitherOf :: (Alternative f) => [f a] -> f a
 eitherOf = foldl1 (<|>)
 
 jpegHeader :: EnvParser ()
-jpegHeader = void $ do
-    lift $ marker SOI
-    many $ eitherOf knownSegments <|> lift unknownSegment
+jpegHeader = do
+        lift $ marker SOI
+        void . many $ eitherOf markerSegments
+        frameDesc
+        void . many $ eitherOf markerSegments
+        scanDesc
 
--- XXX: This is used for debugging purposes only!
-jpegImage :: Parser [()]
-jpegImage = marker SOI >> many unknownSegment
-
--- TODO: - Implement all primitive parsers.
---       - Encode structural constraints upon segment precedence order
+-- TODO: - Encode structural constraints upon segment precedence order
 --         (e.g. SOS cannot preceed SOF)
 main :: IO ()
 main = do
         contents <- BS.readFile "img/sample.jpg"
         print $ parseEnv jpegHeader contents
-        print $ parseOnly jpegImage contents
