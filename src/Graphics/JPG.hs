@@ -6,6 +6,8 @@
 
 module Graphics.JPG where
 
+import Graphics.JPGDecoder
+
 import Control.Applicative
 import Control.Monad.State
 import Prelude hiding(take, id)
@@ -325,17 +327,18 @@ scanDesc = (scanHeader .=) =<< lift startOfScan
 markerSegments :: [EnvParser()]
 markerSegments = [quanTables, huffTable, lift unknownSegment]
 
-eitherOf :: (Alternative f) => [f a] -> f a
-eitherOf = foldl1 (<|>)
-
 tablesMisc :: EnvParser ()
 tablesMisc = void . many $ eitherOf markerSegments
+    where
+        eitherOf :: (Alternative f) => [f a] -> f a
+        eitherOf = foldl1 (<|>)
 
 jpegHeader :: EnvParser ()
 jpegHeader = do
         lift $ marker SOI
         tablesMisc >> frameDesc
         tablesMisc >> scanDesc
+
 
 -- TODO: - Encode structural constraints upon segment precedence order
 --         (e.g. SOS cannot preceed SOF)
@@ -344,4 +347,6 @@ main = do
         contents <- BS.readFile "img/sample.jpg"
         case parseEnv jpegHeader contents of
              Nothing -> putStrLn "JPEG Header corrupted (aborted)"
-             Just (rest, header) -> print header
+             Just (rest, header) -> do
+                 print header
+                 print $ skipPadded rest
