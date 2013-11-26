@@ -344,9 +344,9 @@ jpegHeader = do
 --         (e.g. SOS cannot preceed SOF)
 main :: IO ()
 main = do
-        contents <- BS.readFile "img/sample.jpg"
+        contents <- BS.readFile "../img/sample.jpg"
         case parseEnv jpegHeader contents of
              Nothing -> putStrLn "JPEG Header corrupted (aborted)"
              Just (rest, header) -> do
                  print header
-                 print $ skipPadded rest
+                 print $ skipPadded $ BS.pack ("lo" ++ ['\xFF', '\x00'] ++ "al")

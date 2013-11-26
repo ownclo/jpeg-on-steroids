@@ -8,7 +8,8 @@ import qualified Data.ByteString.Char8 as BS
 skipPadded :: BS.ByteString -> BS.ByteString
 skipPadded s = sub <> rest where
     (sub, next) = BS.break (=='\xFF') s
-    rest = case BS.uncons next of
+    next' = BS.drop 1 next
+    rest = case BS.uncons next' of
                 Just ('\x00', xs) -> '\xFF' `BS.cons` skipPadded xs
                 Just (_, xs) -> skipPadded xs -- skipping the restart marker
                 Nothing  -> BS.empty
