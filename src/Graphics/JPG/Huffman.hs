@@ -1,12 +1,17 @@
 {-# LANGUAGE DoAndIfThenElse #-}
+{-# LANGUAGE DeriveFunctor #-}
 
 module Graphics.JPG.Huffman
-    ( buildHuffmanTree
+    ( HTree(..) -- XXX: Do we need to isolate inner constructors?
+    , buildHuffmanTree
     ) where
 
-import Graphics.JPG.Env(HTree(..))
-
 import Control.Monad.State
+
+data HTree a = Node (HTree a) (HTree a)
+             | Leaf a
+             | Nil -- for trees with odd number of leaves
+             deriving (Show, Functor)
 
 -- WARN! If the tree is malformed, the code will blow up
 -- with runtime exception:

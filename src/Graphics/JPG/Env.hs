@@ -1,10 +1,11 @@
 {-# LANGUAGE BangPatterns #-}
-{-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE TemplateHaskell #-}
 
 module Graphics.JPG.Env where
 
-import Data.Word (Word8, Word16)
+import Graphics.JPG.Huffman(HTree(..))
+
+import Data.Word(Word8, Word16)
 import qualified Data.Map as M
 import Control.Lens(makeLenses)
 
@@ -14,14 +15,10 @@ type Word = Word16
 type Table a = M.Map Int a
 type BC = Int
 type Run = Int
-data HTree a = Node (HTree a) (HTree a)
-             | Leaf a
-             | Nil -- for trees with odd number of leaves
-             deriving (Show, Functor)
 
-type DCHuffTable = Table (HTree BC)
-type ACHuffTable = Table (HTree (Run, BC))
-data HClass  = ACHuff | DCHuff deriving Show
+type DCHuffTree = HTree BC
+type ACHuffTree = HTree (Run, BC)
+data HClass = ACHuff | DCHuff deriving Show
 
 type QTable = [Int] --- XXX: Temporary!
 
@@ -58,8 +55,8 @@ data HuffmanSegment = HFS {
     } deriving Show
 
 data HuffTables = HuffTables { -- retrieves a huffman tree given its type and id.
-            _dcTable :: DCHuffTable,
-            _acTable :: ACHuffTable
+            _dcTable :: Table DCHuffTree,
+            _acTable :: Table ACHuffTree
     } deriving Show
 
 -- Environment will be updated by headers.
