@@ -18,19 +18,33 @@ Library
                      hmatrix,
                      containers,
                      lens
-  exposed-modules:   Graphics.JPG,
-                     Graphics.DCT
+  exposed-modules:   Graphics.JPG
+  other-modules:     Graphics.JPG.Parser,
+                     Graphics.JPG.Decoder,
+                     Graphics.JPG.DCT,
+                     Graphics.JPG.Env,
+                     Graphics.JPG.Huffman
   ghc-options:       -Wall
   hs-source-dirs:    src
 
+Executable jpg
+  Build-Depends:     jpg,
+                     base >= 3 && < 5,
+                     bytestring
+  Ghc-Options:       -rtsopts -Wall -fno-warn-unused-do-bind
+  Ghc-Prof-Options:  -auto-all -caf-all -rtsopts
+  Hs-Source-Dirs:    exec-src
+  Main-Is:           main.hs
+  Buildable:         True
+
 Test-Suite test-jpeg
-  type:            exitcode-stdio-1.0
-  main-is:         test-jpeg.hs
-  hs-source-dirs:  tests
-  build-depends:   jpg,
-                   hmatrix,
-                   haskell2010,
-                   QuickCheck >= 2.4 && < 2.7,
-                   test-framework >= 0.3 && < 0.9,
-                   test-framework-hunit >= 0.2 && < 0.4,
-                   test-framework-quickcheck2 >= 0.2.9 && < 0.4
+  type:              exitcode-stdio-1.0
+  main-is:           test-jpeg.hs
+  hs-source-dirs:    tests
+  build-depends:     hmatrix,
+                     jpg,
+                     haskell2010,
+                     QuickCheck >= 2.4 && < 2.7,
+                     test-framework >= 0.3 && < 0.9,
+                     test-framework-hunit >= 0.2 && < 0.4,
+                     test-framework-quickcheck2 >= 0.2.9 && < 0.4

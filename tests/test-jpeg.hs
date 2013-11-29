@@ -2,9 +2,9 @@
 {-# LANGUAGE FlexibleInstances #-}
 module Main where
 
-import Graphics.DCT
 import Data.Packed.Matrix
 import Numeric.Container
+import Graphics.JPG
 import Control.Monad
 
 import Prelude hiding ((||),(&&)) 
@@ -36,11 +36,7 @@ prop_inversable m = energy diffMatrix < 0.0000005 where
 --[ testGroup "cases" $ zipWith (testCase . show) [1 :: Int ..] $ [] 
 tests :: [Test]
 tests = 
-    [ testGroup "properties" $ zipWith (testProperty . show) [1 :: Int ..] $ 
-        [ property $ \ a -> spec a (*2) a == ((*2) a :: Int)  -- unevaluated
-        , property $ \ !a -> spec a (*2) a == ((*2) $! a :: Int) -- evaluated
-        ] 
-    , testGroup "DCT" $ zipWith (testProperty . show) [1 :: Int ..] $
+    [ testGroup "DCT" $ zipWith (testProperty . show) [1 :: Int ..] $
         [ prop_inversable :: Matrix Double -> Bool
         ]
     ]

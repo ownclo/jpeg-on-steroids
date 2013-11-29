@@ -1,5 +1,5 @@
 {-# LANGUAGE BangPatterns #-}
-module Graphics.DCT
+module Graphics.JPG.DCT
         ( dct
         , idct
         ) where

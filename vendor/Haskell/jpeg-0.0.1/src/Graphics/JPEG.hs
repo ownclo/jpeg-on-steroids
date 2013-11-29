@@ -38,6 +38,7 @@ ceilDiv n d = (n+d-1)`div`d
 ----------------------------------------------
 
 data PixelRGB = PixelRGB { red, green, blue :: {-#UNPACK#-} !Word8 }
+              deriving Show
 
 sane :: Int -> Int
 sane x = (0 `max` x) `min` 255
