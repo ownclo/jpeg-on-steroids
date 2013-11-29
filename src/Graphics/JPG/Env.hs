@@ -1,5 +1,6 @@
 {-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE DeriveFunctor #-}
 
 module Graphics.JPG.Env where
 
@@ -23,16 +24,21 @@ data HClass = ACHuff | DCHuff deriving Show
 type QTable = [Int] --- XXX: Temporary!
 
 data Dim a = Dim {
-           _y :: !a, _x :: !a
-    } deriving Show
+           _y, _x :: !a
+    } deriving (Show, Functor)
 
 toDim :: (a, a) -> Dim a
 toDim (!y, !x) = Dim y x
 
+getY, getX :: Dim a -> a
+getY (Dim y _) = y
+getX (Dim _ x) = x
+
+
 data FrameCompSpec = FrameCompSpec {
             _compId :: {-# UNPACK #-} !Byte, -- component identifier
-            _sf     :: Dim Byte,             -- sampling factors
-            _tq     :: {-# UNPACK #-} !Byte  -- quantization table index
+            _sampF  :: Dim Byte,             -- sampling factors
+            _qTabI  :: {-# UNPACK #-} !Byte  -- quantization table index
     } deriving Show
 
 data FrameHeader = FrameHeader {
