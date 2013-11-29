@@ -29,15 +29,15 @@ data Dim a = Dim {
 toDim :: (a, a) -> Dim a
 toDim (!y, !x) = Dim y x
 
-data CompSpec = CompSpec {
+data FrameCompSpec = FrameCompSpec {
             _compId :: {-# UNPACK #-} !Byte, -- component identifier
             _sf     :: Dim Byte,             -- sampling factors
             _tq     :: {-# UNPACK #-} !Byte  -- quantization table index
     } deriving Show
 
 data FrameHeader = FrameHeader {
-            _size :: Dim Word,  -- size of an image
-            _fcs  :: [CompSpec] -- frame component specification
+            _size :: Dim Word, -- size of an image
+            _fcs  :: Table FrameCompSpec
     } deriving Show
 
 data ScanCompSpec = ScanCompSpec {
@@ -66,5 +66,7 @@ data Env = Env {
             _frameHeader :: FrameHeader,  -- added by SOF
             _scanHeader  :: ScanHeader    -- added by SOS
     } deriving Show
+
 makeLenses ''Env
+makeLenses ''FrameHeader
 makeLenses ''HuffTables

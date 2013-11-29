@@ -138,12 +138,12 @@ quanTablesSegment = do
         let n = (len - 2) `rem` 64 -- WHY? See the comment above.
         n `count` quanTable
 
-frameCompSpec :: Parser CompSpec
+frameCompSpec :: Parser (Int, FrameCompSpec)
 frameCompSpec = do
         id <- byte
         sf <- nibbles
         tq <- byte
-        return $ CompSpec id (toDim sf) tq
+        return $ (fI id, FrameCompSpec id (toDim sf) tq)
 
 startOfFrame :: Parser FrameHeader
 startOfFrame = do
@@ -153,8 +153,8 @@ startOfFrame = do
         y <- word  -- Vertical size of a picture (in pixels)
         x <- word  -- Horizonal size of a picture (in pixels)
         n <- byteI -- Number of color components.
-        fcs <- n `count` frameCompSpec
-        return $ FrameHeader (toDim (y, x)) fcs
+        fcspecs <- n `count` frameCompSpec
+        return $ FrameHeader (toDim (y, x)) (M.fromList fcspecs)
 
 scanCompSpec :: Parser ScanCompSpec
 scanCompSpec = do
