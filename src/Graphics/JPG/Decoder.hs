@@ -35,14 +35,16 @@ data DataUnitSpec = DataUnitSpec {
     } deriving Show
 
 decodeJPG :: Env -> BS -> Either String Image
-decodeJPG (Env (HuffTables dcT acT)
+decodeJPG env _ = Right $ getMCUSpec env
+
+getMCUSpec :: Env -> MCUSpec
+getMCUSpec (Env (HuffTables dcT acT)
                quanT
                (FrameHeader (Dim x y) frameCS)
-               scanH)
-          _ = Right mcus where
+               scanH) = mcus where
 
     getSF (FullCompSpec (FrameCompSpec _ sf _) _) = sf
-    maxYsf, maxXsf :: Int
+    maxYsf, maxXsf :: Int -- depends on fullCompSpecs
     maxYsf = fI . maximum $! map (getY . getSF) fullCompSpecs
     maxXsf = fI . maximum $! map (getX . getSF) fullCompSpecs
 
@@ -56,6 +58,7 @@ decodeJPG (Env (HuffTables dcT acT)
 
     mcus = map buildCompMCU fullCompSpecs
 
+    -- tables came from external scope
     buildCompMCU (FullCompSpec
                     (FrameCompSpec _ samplings qI)
                     (ScanCompSpec _ dcI acI))
