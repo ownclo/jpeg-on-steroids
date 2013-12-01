@@ -42,8 +42,8 @@ Test-Suite test-jpeg
   main-is:           test-jpeg.hs
   hs-source-dirs:    tests
   build-depends:     hmatrix,
+                     base,
                      jpg,
-                     haskell2010,
                      QuickCheck >= 2.4 && < 2.7,
                      test-framework >= 0.3 && < 0.9,
                      test-framework-hunit >= 0.2 && < 0.4,
