@@ -3,6 +3,7 @@ module Graphics.JPG.Decoder
     ) where
 
 import Graphics.JPG.Env
+import Graphics.JPG.Common
 
 import Control.Applicative
 import qualified Data.ByteString.Char8 as B8
@@ -43,10 +44,9 @@ getMCUSpec (Env (HuffTables dcT acT)
                (FrameHeader (Dim x y) frameCS)
                scanH) = mcus where
 
-    getSF (FullCompSpec (FrameCompSpec _ sf _) _) = sf
-    maxYsf, maxXsf :: Int -- depends on fullCompSpecs
-    maxYsf = fI . maximum $! map (getY . getSF) fullCompSpecs
-    maxXsf = fI . maximum $! map (getX . getSF) fullCompSpecs
+    fullCompSpecs = zipById frameCS scanH
+    (maxYsf, maxXsf) = getMaxSampFactors fullCompSpecs
+    mcus = map buildCompMCU fullCompSpecs
 
     _numMCUs = Dim (fI y `ceilDiv` 8*maxYsf)
                    (fI x `ceilDiv` 8*maxXsf)
@@ -54,11 +54,7 @@ getMCUSpec (Env (HuffTables dcT acT)
     upSampFactor (Dim h w) = Dim (maxYsf `div` h)
                                  (maxXsf `div` w)
 
-    fullCompSpecs = zipById frameCS scanH
-
-    mcus = map buildCompMCU fullCompSpecs
-
-    -- tables came from external scope
+    -- it needs all tables + maxY and maxX from outer closure.
     buildCompMCU (FullCompSpec
                     (FrameCompSpec _ samplings qI)
                     (ScanCompSpec _ dcI acI))
@@ -71,6 +67,11 @@ getMCUSpec (Env (HuffTables dcT acT)
         dctree = fromJust $ M.lookup (fI dcI) dcT
         actree = fromJust $ M.lookup (fI acI) acT
 
+getMaxSampFactors :: [FullCompSpec] -> (Int, Int)
+getMaxSampFactors fullCompSpecs = (maxYsf, maxXsf) where
+    maxYsf = fI . maximum $! map (getY . getSF) fullCompSpecs
+    maxXsf = fI . maximum $! map (getX . getSF) fullCompSpecs
+    getSF (FullCompSpec (FrameCompSpec _ sf _) _) = sf
 
 zipById :: Table FrameCompSpec -> [ScanCompSpec] -> [FullCompSpec]
 zipById tfcs = map addFcs where
@@ -89,10 +90,3 @@ _skipPadded s = sub <> rest where
                 Just ('\x00', xs) -> '\xFF' `B8.cons` _skipPadded xs
                 Just (_, xs) -> _skipPadded xs -- skipping the restart marker
                 Nothing  -> B8.empty
-
--- helpers --
-ceilDiv :: Int -> Int -> Int
-ceilDiv n d = (n+d-1)`div`d
-
-fI :: (Integral a, Num b) => a -> b
-fI = fromIntegral

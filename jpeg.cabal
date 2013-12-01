@@ -23,7 +23,8 @@ Library
                      Graphics.JPG.Decoder,
                      Graphics.JPG.DCT,
                      Graphics.JPG.Env,
-                     Graphics.JPG.Huffman
+                     Graphics.JPG.Huffman,
+                     Graphics.JPG.Common
   ghc-options:       -Wall
   hs-source-dirs:    src
 
