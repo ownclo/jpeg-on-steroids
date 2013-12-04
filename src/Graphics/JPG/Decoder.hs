@@ -4,10 +4,16 @@ module Graphics.JPG.Decoder
 
 import Graphics.JPG.Env
 import Graphics.JPG.Common
+import Graphics.JPG.Image
 
-import Control.Applicative
+import Control.Applicative hiding ((<|>))
+-- import Control.Monad(replicateM)
+import Control.Monad.State
+
 import qualified Data.ByteString.Char8 as B8
+import Data.List(foldl1')
 import qualified Data.Map as M
+import Data.Matrix hiding (matrix)
 import Data.Maybe(fromJust)
 import Data.Monoid((<>))
 
@@ -19,37 +25,69 @@ data FullCompSpec = FullCompSpec {
     } deriving Show
 
 data CompMCUSpec = CompMCUSpec {
-            _numDataUnits :: Dim Int, -- number of DUs in an MCU (h and v)
-            _scaleFactors :: Dim Int, -- miltiplicators of _one_ DU
+            _numDataUnits :: !(Dim Int), -- number of DUs in an MCU (h and v)
             _duSpec       :: !DataUnitSpec
     } deriving Show
 
 type MCUSpec = [CompMCUSpec]
-type Image = MCUSpec -- XXX: Temporary
 
 -- Everything that is needed in order to
 -- decode particular Data Unit.
 data DataUnitSpec = DataUnitSpec {
+            _scaleFactors :: !(Dim Int), -- miltiplicators of _one_ DU
             _qTable :: !QTable,
             _dcTree :: !DCHuffTree,
             _acTree :: !ACHuffTree
     } deriving Show
 
 decodeJPG :: Env -> BS -> Either String Image
-decodeJPG env _ = Right $ getMCUSpec env
+decodeJPG env s = Right . fst $ runState (image numMCUs mcuSpec) s'
+    where (numMCUs, mcuSpec) = getMCUSpec env
+          s' = skipPadded s
 
-getMCUSpec :: Env -> MCUSpec
+image :: Dim Int -- number of MCUs
+      -> MCUSpec
+      -> State BS Image
+image numMCUs mcuSpec = fmap concatMCUs $ matrix numMCUs (mcu mcuSpec)
+    where concatMCUs :: [[Image]] -> Image
+          concatMCUs = joinVert . map joinHor
+          joinVert = foldl1' concatImagesVert
+          joinHor  = foldl1' concatImagesHor
+
+          concatImagesVert :: Image -> Image -> Image
+          concatImagesVert = zipWith (<->)
+
+          concatImagesHor :: Image -> Image -> Image
+          concatImagesHor = zipWith (<|>)
+
+mcu :: MCUSpec -> State BS Image
+mcu = mapM compMCU
+
+compMCU :: CompMCUSpec -> State BS DataUnit
+compMCU (CompMCUSpec numDUs duSpec) =
+    concatDUs <$> matrix numDUs (dataUnit duSpec)
+
+concatDUs :: [[DataUnit]] -> DataUnit
+concatDUs = joinVert . map joinHor where
+    joinVert = foldl1' (<->)
+    joinHor  = foldl1' (<|>)
+
+dataUnit :: DataUnitSpec -> State BS DataUnit
+dataUnit (DataUnitSpec ups qT dcTree acTree)
+            = undefined
+
+getMCUSpec :: Env -> (Dim Int, MCUSpec)
 getMCUSpec (Env (HuffTables dcT acT)
-               quanT
-               (FrameHeader (Dim x y) frameCS)
-               scanH) = mcus where
+                quanT
+                (FrameHeader (Dim x y) frameCS)
+                scanH) = (numMCUs, mcuSpec) where
 
     fullCompSpecs = zipById frameCS scanH
     (maxYsf, maxXsf) = getMaxSampFactors fullCompSpecs
-    mcus = map buildCompMCU fullCompSpecs
+    mcuSpec = map buildCompMCU fullCompSpecs
 
-    _numMCUs = Dim (fI y `ceilDiv` 8*maxYsf)
-                   (fI x `ceilDiv` 8*maxXsf)
+    numMCUs = Dim (fI y `ceilDiv` 8*maxYsf)
+                  (fI x `ceilDiv` 8*maxXsf)
 
     upSampFactor (Dim h w) = Dim (maxYsf `div` h)
                                  (maxXsf `div` w)
@@ -58,10 +96,10 @@ getMCUSpec (Env (HuffTables dcT acT)
     buildCompMCU (FullCompSpec
                     (FrameCompSpec _ samplings qI)
                     (ScanCompSpec _ dcI acI))
-                = CompMCUSpec nd ups duSpec where
+                = CompMCUSpec nd duSpec where
         nd = fI <$> samplings
         ups = upSampFactor nd
-        duSpec = DataUnitSpec qtable dctree actree
+        duSpec = DataUnitSpec ups qtable dctree actree
 
         qtable = fromJust $ M.lookup (fI qI) quanT
         dctree = fromJust $ M.lookup (fI dcI) dcT
@@ -79,14 +117,17 @@ zipById tfcs = map addFcs where
                     Nothing -> error "Frame header corrupted. Aborting."
                     Just fc -> FullCompSpec fc sc
 
+matrix :: Monad m => Dim Int -> m a -> m [[a]]
+matrix (Dim y x) = replicateM y . replicateM x
+
 -- NOTE: BS.cons is O(n) because of strict strings, but the rest is fast.
 -- Will it be faster to convert to lazy ByteStrings and then back?
 -- NOTE: That code probably belongs to parser.
-_skipPadded :: BS -> BS
-_skipPadded s = sub <> rest where
+skipPadded :: BS -> BS
+skipPadded s = sub <> rest where
     (sub, next) = B8.break (=='\xFF') s
     next' = B8.drop 1 next
     rest = case B8.uncons next' of
-                Just ('\x00', xs) -> '\xFF' `B8.cons` _skipPadded xs
-                Just (_, xs) -> _skipPadded xs -- skipping the restart marker
+                Just ('\x00', xs) -> '\xFF' `B8.cons` skipPadded xs
+                Just (_, xs) -> skipPadded xs -- skipping the restart marker
                 Nothing  -> B8.empty

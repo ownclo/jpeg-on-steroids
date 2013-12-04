@@ -14,5 +14,5 @@ Synopsis:            A library for decoding JPEG files written in pure Haskell
 Library
   Build-Depends:     base >= 3 && < 5, mtl
   Exposed-modules:   Graphics.JPEG
-  ghc-options:       -Wall
+  ghc-options:       -Wall -XDoAndIfThenElse
   hs-source-dirs:    src

@@ -9,5 +9,4 @@ main :: IO ()
 main = do
         [filename] <- getArgs
         contents <- B8.readFile filename
-        let Right mcus = parseHeader contents >>= uncurry decodeJPG
-        mapM_ print mcus
+        print $ parseHeader contents >>= uncurry decodeJPG
