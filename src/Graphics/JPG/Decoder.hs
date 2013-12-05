@@ -1,3 +1,4 @@
+{-# LANGUAGE BangPatterns #-}
 module Graphics.JPG.Decoder
     ( decodeJPG
     ) where
@@ -8,12 +9,12 @@ import Graphics.JPG.Image
 
 import Control.Applicative hiding ((<|>))
 -- import Control.Monad(replicateM)
-import Control.Monad.State
+import Control.Monad.State.Strict
 
 import qualified Data.ByteString.Char8 as B8
 import Data.List(foldl1')
 import qualified Data.Map as M
-import Data.Matrix hiding (matrix)
+import Data.Matrix
 import Data.Maybe(fromJust)
 import Data.Monoid((<>))
 
@@ -41,14 +42,14 @@ data DataUnitSpec = DataUnitSpec {
     } deriving Show
 
 decodeJPG :: Env -> BS -> Either String Image
-decodeJPG env s = Right . fst $ runState (image numMCUs mcuSpec) s'
+decodeJPG !env !s = Right . fst $! runState (image numMCUs mcuSpec) s'
     where (numMCUs, mcuSpec) = getMCUSpec env
           s' = skipPadded s
 
 image :: Dim Int -- number of MCUs
       -> MCUSpec
       -> State BS Image
-image numMCUs mcuSpec = fmap concatMCUs $ matrix numMCUs (mcu mcuSpec)
+image numMCUs mcuSpec = fmap concatMCUs $ matrixM numMCUs (mcu mcuSpec)
     where concatMCUs :: [[Image]] -> Image
           concatMCUs = joinVert . map joinHor
           joinVert = foldl1' concatImagesVert
@@ -65,7 +66,7 @@ mcu = mapM compMCU
 
 compMCU :: CompMCUSpec -> State BS DataUnit
 compMCU (CompMCUSpec numDUs duSpec) =
-    concatDUs <$> matrix numDUs (dataUnit duSpec)
+    concatDUs <$> matrixM numDUs (dataUnit duSpec)
 
 concatDUs :: [[DataUnit]] -> DataUnit
 concatDUs = joinVert . map joinHor where
@@ -74,7 +75,7 @@ concatDUs = joinVert . map joinHor where
 
 dataUnit :: DataUnitSpec -> State BS DataUnit
 dataUnit (DataUnitSpec ups qT dcTree acTree)
-            = undefined
+            = return $ matrix 8 8 (\_ -> 0)
 
 getMCUSpec :: Env -> (Dim Int, MCUSpec)
 getMCUSpec (Env (HuffTables dcT acT)
@@ -117,8 +118,8 @@ zipById tfcs = map addFcs where
                     Nothing -> error "Frame header corrupted. Aborting."
                     Just fc -> FullCompSpec fc sc
 
-matrix :: Monad m => Dim Int -> m a -> m [[a]]
-matrix (Dim y x) = replicateM y . replicateM x
+matrixM :: Monad m => Dim Int -> m a -> m [[a]]
+matrixM (Dim y x) = replicateM y . replicateM x
 
 -- NOTE: BS.cons is O(n) because of strict strings, but the rest is fast.
 -- Will it be faster to convert to lazy ByteStrings and then back?
